@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPB Repertorio 2026 — Grupo de Música</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;
+  --amber:#e8a849;--gold:#d4a03c;
+  --cream:#f0e6d0;--cream2:#c8b99a;--dim:#6b6580;
+  --purple:#9b7ecf;--rose:#c7727e;--teal:#5ea8a0;
+  --blue:#6b8fc7;--green:#7db87a;--red:#d46a6a;
+  --card:#14141e;--border:#2a2a3a;
+  --ok:#7db87a;--warn:#e8a849;--low:#d46a6a;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;line-height:1.6;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* HERO */
+.hero{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem 1.25rem;position:relative;background:radial-gradient(ellipse at 50% 80%,#1a1428 0%,var(--bg) 70%)}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(232,168,73,.04) 50px);pointer-events:none}
+.hero-badge{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.35em;text-transform:uppercase;color:var(--amber);border:1px solid rgba(232,168,73,.3);padding:.5em 1.5em;border-radius:2px;margin-bottom:2rem;animation:fadeDown .8s ease-out both}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,9vw,7rem);font-weight:900;line-height:.95;color:var(--cream);margin-bottom:1rem;animation:fadeDown 1s ease-out .2s both;word-break:break-word}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero-sub{font-size:clamp(1rem,2.5vw,1.4rem);color:var(--cream2);max-width:600px;font-style:italic;margin-bottom:2.5rem;animation:fadeDown 1s ease-out .4s both}
+.hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center;animation:fadeDown 1s ease-out .6s both}
+.hero-stat{text-align:center}
+.hero-stat .num{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,9vw,3.5rem);font-weight:900;color:var(--amber);display:block;line-height:1}
+.hero-stat .lbl{font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:.3rem}
+.next-rehearsal{margin-top:2.5rem;font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.15em;color:var(--cream2);padding:.6em 1.4em;border:1px solid rgba(232,168,73,.2);border-radius:3px;animation:fadeDown 1s ease-out .8s both}
+.next-rehearsal strong{color:var(--amber);font-weight:500}
+.scroll-hint{position:absolute;bottom:2rem;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.8;transform:translateY(5px)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.8rem 1.25rem;display:flex;align-items:center;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:.7rem}
+.nav-brand{color:var(--amber);font-weight:500;letter-spacing:.15em;text-transform:uppercase}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a{color:var(--dim);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .3s}
+.nav-links a:hover{color:var(--amber)}
+
+/* SECTIONS */
+section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:900;margin-bottom:.5rem;color:var(--cream)}
+.section-sub{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);margin-bottom:2.5rem}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2rem}
+.filter-btn{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.7em 1.1em;min-height:38px;border:1px solid var(--border);background:transparent;color:var(--dim);border-radius:3px;cursor:pointer;transition:all .3s;-webkit-tap-highlight-color:transparent}
+.filter-btn:hover,.filter-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(232,168,73,.08)}
+.sort-bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+.sort-bar .sort-label{margin-right:.3rem}
+
+/* SONG CARDS (Repertorio) */
+.song-card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem;overflow:hidden;transition:border-color .3s;opacity:0;animation:fadeIn .5s ease-out forwards}
+.song-card:hover{border-color:rgba(232,168,73,.3)}
+.song-head{display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;cursor:pointer;user-select:none;position:relative;-webkit-tap-highlight-color:rgba(232,168,73,.1);min-height:64px}
+.song-info{flex:1;min-width:0}
+.song-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--cream);line-height:1.2;word-break:break-word}
+.song-artist{font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:.25rem}
+.song-pct{font-family:'IBM Plex Mono',monospace;font-size:.95rem;font-weight:500;padding:.25em .65em;border-radius:3px;flex-shrink:0;min-width:3.2em;text-align:center}
+.pct-ok{background:rgba(125,184,122,.15);color:var(--ok)}
+.pct-warn{background:rgba(232,168,73,.15);color:var(--warn)}
+.pct-low{background:rgba(212,106,106,.15);color:var(--low)}
+.pct-na{background:rgba(107,101,128,.15);color:var(--dim)}
+.song-section-badge{font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--purple);border:1px solid rgba(155,126,207,.3);padding:.15em .55em;border-radius:2px;flex-shrink:0}
+.badge-banda{color:var(--amber);border-color:rgba(232,168,73,.3)}
+.badge-acusticas{color:var(--teal);border-color:rgba(94,168,160,.3)}
+.badge-unirock{color:var(--rose);border-color:rgba(199,114,126,.3)}
+.song-toggle{font-family:'IBM Plex Mono',monospace;font-size:1.2rem;color:var(--dim);transition:transform .3s;flex-shrink:0}
+.song-toggle.open{transform:rotate(45deg)}
+.song-progress{position:absolute;bottom:0;left:0;height:2px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.song-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.22,1,.36,1);background:rgba(10,10,15,.4)}
+.song-body.open{max-height:1000px}
+.song-body-inner{padding:.5rem 1.4rem 1.3rem}
+.role-row{display:grid;grid-template-columns:auto 1fr auto;gap:.7rem;align-items:center;padding:.5rem 0;border-bottom:1px solid rgba(42,42,58,.5)}
+.role-row:last-child{border-bottom:none}
+.role-label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);display:flex;align-items:center;gap:.4rem;min-width:6.5rem}
+.role-label .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.role-musician{color:var(--cream2);font-size:.95rem}
+.role-musician.empty{color:var(--dim);font-style:italic}
+.role-pct{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--dim);min-width:3rem;text-align:right}
+
+/* MUSICIAN CARDS */
+.musician-card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:1.2rem;overflow:hidden;transition:border-color .3s,transform .3s;opacity:0;animation:fadeIn .6s ease-out forwards}
+.musician-card:hover{border-color:rgba(232,168,73,.3)}
+.musician-card.inactive{opacity:.5}
+.musician-card.inactive:hover{opacity:1}
+.mc-head{display:flex;align-items:center;gap:.9rem;padding:1.1rem 1.4rem;cursor:pointer;user-select:none;-webkit-tap-highlight-color:rgba(232,168,73,.1);min-height:62px}
+.mc-name{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--cream);flex:1;min-width:0;word-break:break-word;line-height:1.15}
+.mc-meta{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
+.mc-count{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:500;color:var(--bg);background:var(--amber);padding:.2em .65em;border-radius:3px;min-width:1.8em;text-align:center}
+.mc-attendance{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:.05em}
+.mc-toggle{font-family:'IBM Plex Mono',monospace;font-size:1.15rem;color:var(--dim);transition:transform .3s}
+.mc-toggle.open{transform:rotate(45deg)}
+.mc-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.22,1,.36,1)}
+.mc-body.open{max-height:3000px}
+.mc-body-inner{padding:0 1.4rem 1.3rem}
+.mc-block{margin-bottom:1.1rem}
+.mc-block:last-child{margin-bottom:0}
+.mc-block-label{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:.5rem}
+.mc-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.mc-chip{font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.05em;color:var(--cream2);background:rgba(232,168,73,.05);border:1px solid rgba(232,168,73,.15);padding:.3em .7em;border-radius:2px}
+.mc-role-block{margin-bottom:.8rem}
+.mc-role-label{font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem}
+.mc-role-label .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.mc-song-line{padding:.3rem 0 .3rem .9rem;border-left:1px solid var(--border);font-size:.92rem;color:var(--cream2);margin-left:.2rem;display:flex;justify-content:space-between;gap:.7rem;align-items:baseline}
+.mc-song-line .artist{color:var(--dim);font-size:.78rem;font-family:'IBM Plex Mono',monospace}
+.mc-song-pct{font-family:'IBM Plex Mono',monospace;font-size:.7rem;flex-shrink:0;color:var(--dim)}
+.mc-attendance-bar{display:flex;gap:.7rem;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--cream2)}
+.mc-attendance-bar .bar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;max-width:200px}
+.mc-attendance-bar .bar .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--amber));border-radius:3px;transition:width 1s ease}
+
+/* INSTRUMENT DOTS */
+.dot.voces{background:var(--rose)}
+.dot.guitarra{background:var(--amber)}
+.dot.bajo{background:var(--teal)}
+.dot.teclado{background:var(--blue)}
+.dot.bateria{background:var(--red)}
+.dot.violin{background:var(--green)}
+.dot.armonica{background:var(--purple)}
+
+/* ENSAYOS */
+.ensayo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem}
+.ensayo-item{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;transition:all .3s;position:relative}
+.ensayo-item.past{opacity:.35}
+.ensayo-item.next{border-color:var(--amber);box-shadow:0 0 0 1px rgba(232,168,73,.3);background:linear-gradient(135deg,rgba(232,168,73,.08),var(--card))}
+.ensayo-day{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.ensayo-item.next .ensayo-day{color:var(--amber)}
+.ensayo-date{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--cream);line-height:1;margin:.3rem 0}
+.ensayo-month{font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--cream2)}
+.ensayo-label{font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:.5rem}
+.ensayo-item.next .ensayo-label{color:var(--amber)}
+.ensayo-next-badge{position:absolute;top:-7px;right:8px;font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;background:var(--amber);color:var(--bg);padding:.15em .55em;border-radius:2px;font-weight:500}
+
+/* FOOTER */
+.footer{text-align:center;padding:4rem 1.25rem 2rem;font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+.footer .logo{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--amber);margin-bottom:.5rem}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .hero{padding:1.5rem 1rem}
+  .hero-badge{font-size:.65rem;padding:.45em 1.2em;margin-bottom:1.5rem}
+  .hero-sub{margin-bottom:2rem;padding:0 .5rem}
+  .hero-stats{gap:1.3rem}
+  .hero-stat .lbl{font-size:.6rem}
+  .next-rehearsal{font-size:.65rem;letter-spacing:.1em}
+  .nav{padding:.7rem 1rem;font-size:.65rem}
+  .nav-links{display:none}
+  section{padding:3rem 1rem}
+  .section-sub{margin-bottom:2rem}
+  .filter-bar{gap:.5rem;flex-wrap:nowrap;overflow-x:auto;margin:0 -1rem 1.5rem;padding:0 1rem .5rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .filter-bar::-webkit-scrollbar{display:none}
+  .filter-btn{flex-shrink:0}
+  .sort-bar{font-size:.6rem}
+  .song-head{padding:1rem;gap:.7rem;min-height:60px}
+  .song-title{font-size:1.05rem}
+  .song-artist{font-size:.58rem}
+  .song-pct{font-size:.85rem;min-width:2.9em}
+  .song-section-badge{font-size:.5rem;display:none}
+  .song-body-inner{padding:.4rem 1rem 1rem}
+  .role-row{grid-template-columns:auto 1fr auto;gap:.6rem;padding:.45rem 0}
+  .role-label{min-width:5rem;font-size:.6rem}
+  .role-musician{font-size:.88rem}
+  .mc-head{padding:1rem;gap:.7rem}
+  .mc-name{font-size:1.15rem}
+  .mc-count{font-size:.7rem}
+  .mc-attendance{display:none}
+  .mc-body-inner{padding:0 1rem 1rem}
+  .mc-song-line{font-size:.88rem;padding:.3rem 0 .3rem .7rem}
+  .mc-song-line .artist{font-size:.7rem}
+  .ensayo-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem}
+  .ensayo-date{font-size:1.5rem}
+  .footer{padding:3rem 1rem 2rem}
+}
+@media(max-width:380px){
+  .hero h1{font-size:2.2rem}
+  .hero-stats{gap:.9rem}
+  .hero-stat .num{font-size:2.1rem}
+  .song-title{font-size:1rem}
+  .mc-name{font-size:1.1rem}
+  .ensayo-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Semestre I · 2026</div>
+  <h1>Repertorio<br><em>UPB</em></h1>
+  <p class="hero-sub">Grupo de música · canciones, músicos y avance del semestre</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="num" id="kpi-musicians">__M__</span><span class="lbl">Músicos activos</span></div>
+    <div class="hero-stat"><span class="num" id="kpi-songs">__S__</span><span class="lbl">Canciones</span></div>
+    <div class="hero-stat"><span class="num" id="kpi-avg">__A__%</span><span class="lbl">Avance medio</span></div>
+  </div>
+  <div class="scroll-hint">↓ scroll ↓</div>
+</div>
+
+<nav class="nav">
+  <div class="nav-brand">UPB Música</div>
+  <div class="nav-links">
+    <a href="#repertorio">Repertorio</a>
+    <a href="#musicos">Músicos</a>
+    <a href="#eventos">Eventos</a>
+  </div>
+</nav>
+
+<section id="repertorio">
+  <div class="section-title">Repertorio</div>
+  <div class="section-sub">38 canciones · % de avance por rol</div>
+  <div class="filter-bar" id="song-filters">
+    <button class="filter-btn" data-filter="banda">Banda</button>
+    <button class="filter-btn" data-filter="acusticas">Acústicas</button>
+  </div>
+  <div class="sort-bar" id="song-sort">
+    <span class="sort-label">Avance:</span>
+    <button class="filter-btn active" data-sort="pct-desc">Más avanzadas</button>
+    <button class="filter-btn" data-sort="pct-asc">Menos avanzadas</button>
+  </div>
+  <div id="songs-container"></div>
+</section>
+
+<section id="musicos">
+  <div class="section-title">Músicos</div>
+  <div class="section-sub">Asignaciones, instrumentos y asistencia · click para expandir</div>
+  <div class="filter-bar" id="musician-filters">
+    <button class="filter-btn active" data-filter="all">Todos</button>
+    <button class="filter-btn" data-filter="voces">Voces</button>
+    <button class="filter-btn" data-filter="guitarra">Guitarras</button>
+    <button class="filter-btn" data-filter="bajo">Bajo</button>
+    <button class="filter-btn" data-filter="teclado">Teclado</button>
+    <button class="filter-btn" data-filter="bateria">Batería</button>
+    <button class="filter-btn" data-filter="violin">Violín</button>
+  </div>
+  <div id="musicians-container"></div>
+</section>
+
+<section id="eventos">
+  <div class="section-title">Eventos</div>
+  <div class="section-sub">Setlists para presentaciones · click para expandir</div>
+  <div id="eventos-container"></div>
+</section>
+
+<div class="footer">
+  <div class="logo">♪ UPB</div>
+  Universidad Privada Boliviana · Grupo de Música 2026-I
+</div>
+
+<script>
+const DATA = {"kpis": {"musicians_active": 31, "musicians_total": 46, "songs_total": 38, "songs_banda": 26, "songs_acusticas": 12, "avg_global": 44}, "songs": [{"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "Pantera", "cancion": "5 minutes alone/Walk", "global_pct": 32, "roles": [{"role": "Voces", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 80}, {"role": "Voces 2", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 0}, {"role": "Guitarra 1", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 0}, {"role": "Guitarra 2", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 50}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 30}]}, {"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "Avenged Sevenfold", "cancion": "Bat Country", "global_pct": 52, "roles": [{"role": "Voces", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 70}, {"role": "Guitarra 1", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 20}, {"role": "Guitarra 2", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 70}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 50}]}, {"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "Guthrie Govan", "cancion": "Wonderful Slippery Thing", "global_pct": 55, "roles": [{"role": "Guitarra 1", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 60}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 60}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 45}]}, {"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "Jhon Mayer", "cancion": "Neon/Slow dancing/ Belive", "global_pct": 32, "roles": [{"role": "Voces", "musician_display": "Jessica", "musician_full": "Jessica Bolivar", "pct": 0}, {"role": "Guitarra 1", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 100}, {"role": "Guitarra 2", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 30}, {"role": "Guitarra 3", "musician_display": null, "musician_full": null, "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 30}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Airbag", "cancion": "Anarquía en Bs", "global_pct": 18, "roles": [{"role": "Voces", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 90}, {"role": "Guitarra 1", "musician_display": "Natalia", "musician_full": "Natalia Maldonado", "pct": 0}, {"role": "Guitarra 2", "musician_display": "Gary", "musician_full": "Gari Mijael Mamani Condori", "pct": 0}, {"role": "Bajo", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Ciro", "cancion": "Mirenla", "global_pct": 16, "roles": [{"role": "Voces", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 80}, {"role": "Guitarra 1", "musician_display": "Natalia", "musician_full": "Natalia Maldonado", "pct": 0}, {"role": "Guitarra 2", "musician_display": null, "musician_full": null, "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": 0}, {"role": "Armónica", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Robbie Williams", "cancion": "Shes the one", "global_pct": 27, "roles": [{"role": "Voces", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 80}, {"role": "Guitarra 1", "musician_display": "Natalia", "musician_full": "Natalia Maldonado", "pct": null}, {"role": "Guitarra 2", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 80}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Natalia Lacunza/Marta", "cancion": "Tainted Love", "global_pct": 10, "roles": [{"role": "Voces", "musician_display": "Fernanda H", "musician_full": "Fernanda Humerez", "pct": 30}, {"role": "Voces 2", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 30}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Janis Joplin", "cancion": "Mercedes Benz/ Maybe/Piece of my heart", "global_pct": 20, "roles": [{"role": "Voces", "musician_display": "Belen", "musician_full": "Belen Arce", "pct": 90}, {"role": "Guitarra 1", "musician_display": "Natalia", "musician_full": "Natalia Maldonado", "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 10}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "La Mosca/Operación triunfo", "cancion": "Para no verte más", "global_pct": 20, "roles": [{"role": "Voces", "musician_display": "Jessica", "musician_full": "Jessica Bolivar", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "21 Pilots", "cancion": "Mashup", "global_pct": 32, "roles": [{"role": "Voces", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 80}, {"role": "Voces 2", "musician_display": null, "musician_full": null, "pct": 0}, {"role": "Guitarra 1", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 80}, {"role": "Teclado", "musician_display": "Secuencias", "musician_full": "Secuencias", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Jarabe de Palo", "cancion": "Agua", "global_pct": 62, "roles": [{"role": "Voces", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 80}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 80}, {"role": "Guitarra 2", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 80}, {"role": "Bajo", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 0}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 70}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Bandalos Chinos", "cancion": "Vámonos De Viaje", "global_pct": 37, "roles": [{"role": "Voces", "musician_display": "Aleshka", "musician_full": "Aleshka Garvizu", "pct": 80}, {"role": "Voces 2", "musician_display": "Anibal", "musician_full": "Anibal Mariaca Saavedra", "pct": null}, {"role": "Guitarra 1", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 100}, {"role": "Bajo", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 20}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": 0}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 20}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Bruno Mars", "cancion": "Locked out of heaven", "global_pct": 55, "roles": [{"role": "Voces", "musician_display": "Jasmine", "musician_full": "Jasmine Juliano Fernandez", "pct": 0}, {"role": "Guitarra 1", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 70}, {"role": "Bajo", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 50}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 100}]}, {"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "Soda Stereo", "cancion": "Juegos de seducción/Lo que sangra", "global_pct": 67, "roles": [{"role": "Voces", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 100}, {"role": "Guitarra 2", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 100}, {"role": "Bajo", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 50}, {"role": "Teclado", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 0}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 50}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Michael Jackson", "cancion": "Mashup", "global_pct": 0, "roles": [{"role": "Voces", "musician_display": "Fernanda H", "musician_full": "Fernanda Humerez", "pct": 0}, {"role": "Voces 2", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Guitarra 1", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Rosario", "cancion": "Qué bonito", "global_pct": 50, "roles": [{"role": "Voces", "musician_display": "Jasmine", "musician_full": "Jasmine Juliano Fernandez", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 0}, {"role": "Bajo", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 50}, {"role": "Violín", "musician_display": "Jasmine", "musician_full": "Jasmine Juliano Fernandez", "pct": 0}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 100}]}, {"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "Alannah Myles", "cancion": "Black velvet", "global_pct": 46, "roles": [{"role": "Voces", "musician_display": "Natalia C", "musician_full": "Natalia Castro", "pct": 20}, {"role": "Guitarra 1", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 80}, {"role": "Guitarra 2", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 30}, {"role": "Bajo", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 0}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": null}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 100}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Miski", "cancion": "Washing Machine Heart", "global_pct": 44, "roles": [{"role": "Voces", "musician_display": "Anibal", "musician_full": "Anibal Mariaca Saavedra", "pct": 90}, {"role": "Guitarra 1", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 51}, {"role": "Guitarra 2", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 0}, {"role": "Bajo", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 0}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 80}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Riky Martin", "cancion": "Tu recuerdo sigue aquí", "global_pct": 54, "roles": [{"role": "Voces", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 90}, {"role": "Voces 2", "musician_display": "Anibal", "musician_full": "Anibal Mariaca Saavedra", "pct": 90}, {"role": "Guitarra 1", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 0}, {"role": "Guitarra 2", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 0}, {"role": "Guitarra 3", "musician_display": null, "musician_full": null, "pct": 0}, {"role": "Bajo", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 100}, {"role": "Violín", "musician_display": "Erik", "musician_full": "Erik Alejandro Rendón Jimenez", "pct": 0}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 100}]}, {"section": "banda", "section_label": "Banda", "in_unirock": true, "interprete": "The White Stripes", "cancion": "7 nation army", "global_pct": 48, "roles": [{"role": "Voces", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 90}, {"role": "Guitarra 1", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 50}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": null}, {"role": "Teclado", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": null}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 100}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Jósean Log", "cancion": "Chachachá", "global_pct": 64, "roles": [{"role": "Voces", "musician_display": "Jeffrey", "musician_full": "Jeffrey David Pardo Paredes", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": 0}, {"role": "Guitarra 2", "musician_display": "Jeffrey", "musician_full": "Jeffrey David Pardo Paredes", "pct": 0}, {"role": "Guitarra 3", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 100}, {"role": "Bajo", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 50}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": null}, {"role": "Batería", "musician_display": "Camila Ramos", "musician_full": "Camila Ramos Rodriguez", "pct": 70}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Beatles", "cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "global_pct": 47, "roles": [{"role": "Voces", "musician_display": "Alira", "musician_full": "Alira Macel Miranda Garcia", "pct": 0}, {"role": "Voces 2", "musician_display": "Jeffrey", "musician_full": "Jeffrey David Pardo Paredes", "pct": 50}, {"role": "Guitarra 1", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 80}, {"role": "Guitarra 2", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 50}, {"role": "Guitarra 3", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 90}, {"role": "Bajo", "musician_display": "Nico", "musician_full": "Nico Cueto", "pct": 10}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": null}, {"role": "Batería", "musician_display": "Camila Ramos", "musician_full": "Camila Ramos Rodriguez", "pct": 50}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "The Walters", "cancion": "I Love you So", "global_pct": 62, "roles": [{"role": "Voces", "musician_display": "Tiani", "musician_full": "Tiani Magalhaes", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 100}, {"role": "Bajo", "musician_display": "Nico", "musician_full": "Nico Cueto", "pct": null}, {"role": "Batería", "musician_display": "Camila Ramos", "musician_full": "Camila Ramos Rodriguez", "pct": 50}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Enanitos verdes", "cancion": "Frances Limón", "global_pct": 25, "roles": [{"role": "Voces", "musician_display": "Alira", "musician_full": "Alira Macel Miranda Garcia", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": null}, {"role": "Guitarra 2", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": null}, {"role": "Bajo", "musician_display": "Nico", "musician_full": "Nico Cueto", "pct": null}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 0}]}, {"section": "banda", "section_label": "Banda", "in_unirock": false, "interprete": "Los Redondos", "cancion": "Jijiji", "global_pct": 40, "roles": [{"role": "Voces", "musician_display": "Nico", "musician_full": "Nico Cueto", "pct": 50}, {"role": "Guitarra 1", "musician_display": "Nico", "musician_full": "Nico Cueto", "pct": 80}, {"role": "Guitarra 2", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 70}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 0}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Luis Fonsi", "cancion": "No me doy por vencido", "global_pct": 70, "roles": [{"role": "Voces", "musician_display": "Fabiana Rojas", "musician_full": "Fabiana Rojas Lizarraga", "pct": 70}, {"role": "Guitarra 1", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 70}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Ed Sheran", "cancion": "Give me Love", "global_pct": 70, "roles": [{"role": "Voces", "musician_display": "Fernanda H", "musician_full": "Fernanda Humerez", "pct": 70}, {"role": "Guitarra 1", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 70}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Dua Lipa", "cancion": "Homesick", "global_pct": 70, "roles": [{"role": "Voces", "musician_display": "Fernanda H", "musician_full": "Fernanda Humerez", "pct": 70}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 70}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Sienna Spiro/Naty Peluso", "cancion": "Die On Tihs Hill/Envidia", "global_pct": 75, "roles": [{"role": "Voces", "musician_display": "Jessica", "musician_full": "Jessica Bolivar", "pct": 100}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": 50}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Varios", "cancion": "El sitio de mi recreo/ Dos Gardenias", "global_pct": 60, "roles": [{"role": "Voces", "musician_display": "Fernanda H", "musician_full": "Fernanda Humerez", "pct": 70}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 50}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Varios", "cancion": "Garganta con arena", "global_pct": 60, "roles": [{"role": "Voces", "musician_display": "Fernanda H", "musician_full": "Fernanda Humerez", "pct": 70}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 50}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Casasola", "cancion": "De regreso", "global_pct": 70, "roles": [{"role": "Voces", "musician_display": "Belen", "musician_full": "Belen Arce", "pct": 60}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 80}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Kevin Carl", "cancion": "San Lucas", "global_pct": 93, "roles": [{"role": "Voces", "musician_display": "Alira", "musician_full": "Alira Macel Miranda Garcia", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Fátima", "musician_full": "Fátima Burgoa", "pct": 100}, {"role": "Guitarra 2", "musician_display": null, "musician_full": null, "pct": 80}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Desconocido", "cancion": "Castillo Ambulante", "global_pct": 0, "roles": [{"role": "Teclado", "musician_display": "Caleb", "musician_full": "Caleb Astulla Ubizaga", "pct": null}, {"role": "Violín", "musician_display": "Erik", "musician_full": "Erik Alejandro Rendón Jimenez", "pct": null}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Mecano", "cancion": "Hijo de la luna", "global_pct": 0, "roles": [{"role": "Teclado", "musician_display": "Caleb", "musician_full": "Caleb Astulla Ubizaga", "pct": null}, {"role": "Violín", "musician_display": "Erik", "musician_full": "Erik Alejandro Rendón Jimenez", "pct": null}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Adele", "cancion": "All I ask", "global_pct": 40, "roles": [{"role": "Voces", "musician_display": "Mariana", "musician_full": "Mariana Villarroel Deheza", "pct": 80}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": null}]}, {"section": "acusticas", "section_label": "Acústicas", "in_unirock": false, "interprete": "Juke", "cancion": "Golden Hour", "global_pct": 47, "roles": [{"role": "Voces", "musician_display": "Jeffrey", "musician_full": "Jeffrey David Pardo Paredes", "pct": 90}, {"role": "Teclado", "musician_display": "Caleb", "musician_full": "Caleb Astulla Ubizaga", "pct": 50}]}], "eventos": [{"name": "UniRock", "songs": [{"interprete": "Pantera", "cancion": "5 minutes alone/Walk", "global_pct": 32, "roles": [{"role": "Voces", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 80}, {"role": "Voces 2", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 0}, {"role": "Guitarra 1", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 0}, {"role": "Guitarra 2", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 50}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 30}]}, {"interprete": "Avenged Sevenfold", "cancion": "Bat Country", "global_pct": 52, "roles": [{"role": "Voces", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 70}, {"role": "Guitarra 1", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 20}, {"role": "Guitarra 2", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 70}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 50}]}, {"interprete": "Guthrie Govan", "cancion": "Wonderful Slippery Thing", "global_pct": 55, "roles": [{"role": "Guitarra 1", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 60}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 60}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 45}]}, {"interprete": "Jhon Mayer", "cancion": "Neon/Slow dancing/ Belive", "global_pct": 32, "roles": [{"role": "Voces", "musician_display": "Jessica", "musician_full": "Jessica Bolivar", "pct": 0}, {"role": "Guitarra 1", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 100}, {"role": "Guitarra 2", "musician_display": "Tomy", "musician_full": "Tomás Villanueva", "pct": 30}, {"role": "Guitarra 3", "musician_display": null, "musician_full": null, "pct": 0}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 0}, {"role": "Teclado", "musician_display": "Vale", "musician_full": "Valentina Camacho", "pct": 0}, {"role": "Batería", "musician_display": "Andy", "musician_full": "Andy David Velarde Torrico", "pct": 30}]}, {"interprete": "Alannah Myles", "cancion": "Black velvet", "global_pct": 46, "roles": [{"role": "Voces", "musician_display": "Natalia C", "musician_full": "Natalia Castro", "pct": 20}, {"role": "Guitarra 1", "musician_display": "Ale Y", "musician_full": "Alejandro Fabián Yañez Parra", "pct": 80}, {"role": "Guitarra 2", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 30}, {"role": "Bajo", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 0}, {"role": "Teclado", "musician_display": "Silvana", "musician_full": "Silvana López Goméz", "pct": null}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 100}]}, {"interprete": "The White Stripes", "cancion": "7 nation army", "global_pct": 48, "roles": [{"role": "Voces", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": 90}, {"role": "Guitarra 1", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 50}, {"role": "Bajo", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": null}, {"role": "Teclado", "musician_display": "Ale", "musician_full": "Alejandro Burgoa", "pct": null}, {"role": "Batería", "musician_display": "Jennifer", "musician_full": "Jennifer Gutierrez Encinas", "pct": 100}]}, {"interprete": "Soda Stereo", "cancion": "Juegos de seducción/Lo que sangra", "global_pct": 67, "roles": [{"role": "Voces", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 100}, {"role": "Guitarra 1", "musician_display": "Lucas", "musician_full": "Lucas Vargas", "pct": 100}, {"role": "Guitarra 2", "musician_display": "Fernando", "musician_full": "Fernando Rodrigo Yugar Villafan", "pct": 100}, {"role": "Bajo", "musician_display": "Bernardo", "musician_full": "Bernardo Del Aguila", "pct": 50}, {"role": "Teclado", "musician_display": "Adrián", "musician_full": "Adrián Peredo Gutierrez", "pct": 0}, {"role": "Batería", "musician_display": "Mateo", "musician_full": "Mateo Moya Cespedes", "pct": 50}]}], "avg_pct": 47}], "roster": [{"full": "Valentina Camacho", "instruments_domain": ["Voz", "Teclado", "Bajo", "Armónica", "Guitarra"], "attended": 5, "total": 17, "songs_by_role": {"Teclado": [{"cancion": "Neon/Slow dancing/ Belive", "interprete": "Jhon Mayer", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Shes the one", "interprete": "Robbie Williams", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Mercedes Benz/ Maybe/Piece of my heart", "interprete": "Janis Joplin", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Para no verte más", "interprete": "La Mosca/Operación triunfo", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "Michael Jackson", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Homesick", "interprete": "Dua Lipa", "pct": 70, "section": "acusticas", "in_unirock": false}, {"cancion": "El sitio de mi recreo/ Dos Gardenias", "interprete": "Varios", "pct": 50, "section": "acusticas", "in_unirock": false}, {"cancion": "Garganta con arena", "interprete": "Varios", "pct": 50, "section": "acusticas", "in_unirock": false}], "Voces": [{"cancion": "Anarquía en Bs", "interprete": "Airbag", "pct": 90, "section": "banda", "in_unirock": false}, {"cancion": "Mirenla", "interprete": "Ciro", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Shes the one", "interprete": "Robbie Williams", "pct": 80, "section": "banda", "in_unirock": false}], "Bajo": [{"cancion": "Anarquía en Bs", "interprete": "Airbag", "pct": 0, "section": "banda", "in_unirock": false}], "Armónica": [{"cancion": "Mirenla", "interprete": "Ciro", "pct": 0, "section": "banda", "in_unirock": false}], "Voces 2": [{"cancion": "Tainted Love", "interprete": "Natalia Lacunza/Marta", "pct": 30, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "Michael Jackson", "pct": 0, "section": "banda", "in_unirock": false}], "Guitarra 1": [{"cancion": "Give me Love", "interprete": "Ed Sheran", "pct": 70, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [0, 90, 0, 80, 0, 80, 80, 30, 0, 0, 0, 0, 70, 70, 50, 50], "count": 16, "avg_pct": 38}, {"full": "Alejandro Burgoa", "instruments_domain": ["Voz", "Bajo", "Guitarra", "Teclado"], "attended": 5, "total": 17, "songs_by_role": {"Bajo": [{"cancion": "5 minutes alone/Walk", "interprete": "Pantera", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Bat Country", "interprete": "Avenged Sevenfold", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Wonderful Slippery Thing", "interprete": "Guthrie Govan", "pct": 60, "section": "banda", "in_unirock": true}, {"cancion": "Neon/Slow dancing/ Belive", "interprete": "Jhon Mayer", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Mirenla", "interprete": "Ciro", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Shes the one", "interprete": "Robbie Williams", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Tainted Love", "interprete": "Natalia Lacunza/Marta", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mercedes Benz/ Maybe/Piece of my heart", "interprete": "Janis Joplin", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Para no verte más", "interprete": "La Mosca/Operación triunfo", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "21 Pilots", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "Michael Jackson", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "7 nation army", "interprete": "The White Stripes", "pct": null, "section": "banda", "in_unirock": true}], "Voces": [{"cancion": "Mashup", "interprete": "21 Pilots", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "7 nation army", "interprete": "The White Stripes", "pct": 90, "section": "banda", "in_unirock": true}], "Teclado": [{"cancion": "7 nation army", "interprete": "The White Stripes", "pct": null, "section": "banda", "in_unirock": true}]}, "all_pcts": [0, 0, 60, 0, 0, 0, 0, 0, 0, 80, 80, 0, 90], "count": 15, "avg_pct": 24}, {"full": "Lucas Vargas", "instruments_domain": ["Voz", "Guitarra", "Bajo"], "attended": 9, "total": 17, "songs_by_role": {"Guitarra 1": [{"cancion": "Tainted Love", "interprete": "Natalia Lacunza/Marta", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Para no verte más", "interprete": "La Mosca/Operación triunfo", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Agua", "interprete": "Jarabe de Palo", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Juegos de seducción/Lo que sangra", "interprete": "Soda Stereo", "pct": 100, "section": "banda", "in_unirock": true}, {"cancion": "I Love you So", "interprete": "The Walters", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "De regreso", "interprete": "Casasola", "pct": 80, "section": "acusticas", "in_unirock": false}], "Voces": [{"cancion": "Agua", "interprete": "Jarabe de Palo", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Juegos de seducción/Lo que sangra", "interprete": "Soda Stereo", "pct": 100, "section": "banda", "in_unirock": true}, {"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 90, "section": "banda", "in_unirock": false}], "Bajo": [{"cancion": "Locked out of heaven", "interprete": "Bruno Mars", "pct": 50, "section": "banda", "in_unirock": false}, {"cancion": "Chachachá", "interprete": "Jósean Log", "pct": 50, "section": "banda", "in_unirock": false}], "Guitarra 2": [{"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 0, 80, 80, 50, 100, 100, 90, 0, 50, 100, 80], "count": 12, "avg_pct": 61}, {"full": "Andy David Velarde Torrico", "instruments_domain": ["Batería"], "attended": 3, "total": 17, "songs_by_role": {"Batería": [{"cancion": "5 minutes alone/Walk", "interprete": "Pantera", "pct": 30, "section": "banda", "in_unirock": true}, {"cancion": "Bat Country", "interprete": "Avenged Sevenfold", "pct": 50, "section": "banda", "in_unirock": true}, {"cancion": "Wonderful Slippery Thing", "interprete": "Guthrie Govan", "pct": 45, "section": "banda", "in_unirock": true}, {"cancion": "Neon/Slow dancing/ Belive", "interprete": "Jhon Mayer", "pct": 30, "section": "banda", "in_unirock": true}, {"cancion": "Anarquía en Bs", "interprete": "Airbag", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mirenla", "interprete": "Ciro", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Shes the one", "interprete": "Robbie Williams", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Tainted Love", "interprete": "Natalia Lacunza/Marta", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mercedes Benz/ Maybe/Piece of my heart", "interprete": "Janis Joplin", "pct": 10, "section": "banda", "in_unirock": false}, {"cancion": "Para no verte más", "interprete": "La Mosca/Operación triunfo", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "21 Pilots", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [30, 50, 45, 30, 0, 0, 0, 0, 10, 0, 0], "count": 11, "avg_pct": 15}, {"full": "Fernando Rodrigo Yugar Villafan", "instruments_domain": ["Guitarra"], "attended": 11, "total": 17, "songs_by_role": {"Bajo": [{"cancion": "Agua", "interprete": "Jarabe de Palo", "pct": 0, "section": "banda", "in_unirock": false}], "Guitarra 1": [{"cancion": "Vámonos De Viaje", "interprete": "Bandalos Chinos", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "Washing Machine Heart", "interprete": "Miski", "pct": 51, "section": "banda", "in_unirock": false}, {"cancion": "7 nation army", "interprete": "The White Stripes", "pct": 50, "section": "banda", "in_unirock": true}, {"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Frances Limón", "interprete": "Enanitos verdes", "pct": null, "section": "banda", "in_unirock": false}], "Guitarra 2": [{"cancion": "Juegos de seducción/Lo que sangra", "interprete": "Soda Stereo", "pct": 100, "section": "banda", "in_unirock": true}, {"cancion": "Black velvet", "interprete": "Alannah Myles", "pct": 30, "section": "banda", "in_unirock": true}, {"cancion": "Jijiji", "interprete": "Los Redondos", "pct": 70, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 100, 100, 30, 51, 50, 80, 70], "count": 9, "avg_pct": 60}, {"full": "Silvana López Goméz", "instruments_domain": ["Piano", "Ukelele", "Charango", "Voz", "Coro"], "attended": 2, "total": 17, "songs_by_role": {"Teclado": [{"cancion": "Mirenla", "interprete": "Ciro", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Tainted Love", "interprete": "Natalia Lacunza/Marta", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Vámonos De Viaje", "interprete": "Bandalos Chinos", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Black velvet", "interprete": "Alannah Myles", "pct": null, "section": "banda", "in_unirock": true}, {"cancion": "Chachachá", "interprete": "Jósean Log", "pct": null, "section": "banda", "in_unirock": false}, {"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": null, "section": "banda", "in_unirock": false}, {"cancion": "Die On Tihs Hill/Envidia", "interprete": "Sienna Spiro/Naty Peluso", "pct": 50, "section": "acusticas", "in_unirock": false}, {"cancion": "All I ask", "interprete": "Adele", "pct": null, "section": "acusticas", "in_unirock": false}], "Guitarra 1": [{"cancion": "Chachachá", "interprete": "Jósean Log", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 0, 0, 0, 50], "count": 9, "avg_pct": 10}, {"full": "Fátima Burgoa", "instruments_domain": ["Guitarra", "ukelele", "violín", "Piano", "Flauta"], "attended": 7, "total": 17, "songs_by_role": {"Guitarra 1": [{"cancion": "Qué bonito", "interprete": "Rosario", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "No me doy por vencido", "interprete": "Luis Fonsi", "pct": 70, "section": "acusticas", "in_unirock": false}, {"cancion": "San Lucas", "interprete": "Kevin Carl", "pct": 100, "section": "acusticas", "in_unirock": false}], "Guitarra 2": [{"cancion": "Washing Machine Heart", "interprete": "Miski", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Frances Limón", "interprete": "Enanitos verdes", "pct": null, "section": "banda", "in_unirock": false}], "Bajo": [{"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 100, "section": "banda", "in_unirock": false}], "Guitarra 3": [{"cancion": "Chachachá", "interprete": "Jósean Log", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 90, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 0, 100, 100, 90, 70, 100], "count": 8, "avg_pct": 66}, {"full": "Mateo Moya Cespedes", "instruments_domain": ["Batería"], "attended": 4, "total": 17, "songs_by_role": {"Batería": [{"cancion": "Agua", "interprete": "Jarabe de Palo", "pct": 70, "section": "banda", "in_unirock": false}, {"cancion": "Vámonos De Viaje", "interprete": "Bandalos Chinos", "pct": 20, "section": "banda", "in_unirock": false}, {"cancion": "Locked out of heaven", "interprete": "Bruno Mars", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "Juegos de seducción/Lo que sangra", "interprete": "Soda Stereo", "pct": 50, "section": "banda", "in_unirock": true}, {"cancion": "Mashup", "interprete": "Michael Jackson", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Qué bonito", "interprete": "Rosario", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "Jijiji", "interprete": "Los Redondos", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [70, 20, 100, 50, 0, 100, 0], "count": 7, "avg_pct": 49}, {"full": "Tomás Villanueva", "instruments_domain": ["Voz", "Guitarra", "Bajo"], "attended": 8, "total": 17, "songs_by_role": {"Voces": [{"cancion": "5 minutes alone/Walk", "interprete": "Pantera", "pct": 80, "section": "banda", "in_unirock": true}, {"cancion": "Bat Country", "interprete": "Avenged Sevenfold", "pct": 70, "section": "banda", "in_unirock": true}], "Guitarra 2": [{"cancion": "5 minutes alone/Walk", "interprete": "Pantera", "pct": 50, "section": "banda", "in_unirock": true}, {"cancion": "Neon/Slow dancing/ Belive", "interprete": "Jhon Mayer", "pct": 30, "section": "banda", "in_unirock": true}, {"cancion": "Shes the one", "interprete": "Robbie Williams", "pct": 0, "section": "banda", "in_unirock": false}], "Guitarra 1": [{"cancion": "Bat Country", "interprete": "Avenged Sevenfold", "pct": 20, "section": "banda", "in_unirock": true}, {"cancion": "Wonderful Slippery Thing", "interprete": "Guthrie Govan", "pct": 60, "section": "banda", "in_unirock": true}]}, "all_pcts": [80, 50, 70, 20, 60, 30, 0], "count": 7, "avg_pct": 44}, {"full": "Bernardo Del Aguila", "instruments_domain": ["Guitarra", "Bajo", "Batería"], "attended": 5, "total": 17, "songs_by_role": {"Voces 2": [{"cancion": "5 minutes alone/Walk", "interprete": "Pantera", "pct": 0, "section": "banda", "in_unirock": true}], "Guitarra 1": [{"cancion": "5 minutes alone/Walk", "interprete": "Pantera", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Locked out of heaven", "interprete": "Bruno Mars", "pct": 70, "section": "banda", "in_unirock": false}], "Guitarra 2": [{"cancion": "Agua", "interprete": "Jarabe de Palo", "pct": 80, "section": "banda", "in_unirock": false}], "Bajo": [{"cancion": "Vámonos De Viaje", "interprete": "Bandalos Chinos", "pct": 20, "section": "banda", "in_unirock": false}, {"cancion": "Juegos de seducción/Lo que sangra", "interprete": "Soda Stereo", "pct": 50, "section": "banda", "in_unirock": true}, {"cancion": "Qué bonito", "interprete": "Rosario", "pct": 50, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 0, 80, 20, 70, 50, 50], "count": 7, "avg_pct": 39}, {"full": "Fernanda Humerez", "instruments_domain": ["Voz"], "attended": 5, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Tainted Love", "interprete": "Natalia Lacunza/Marta", "pct": 30, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "Michael Jackson", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Give me Love", "interprete": "Ed Sheran", "pct": 70, "section": "acusticas", "in_unirock": false}, {"cancion": "Homesick", "interprete": "Dua Lipa", "pct": 70, "section": "acusticas", "in_unirock": false}, {"cancion": "El sitio de mi recreo/ Dos Gardenias", "interprete": "Varios", "pct": 70, "section": "acusticas", "in_unirock": false}, {"cancion": "Garganta con arena", "interprete": "Varios", "pct": 70, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [30, 0, 70, 70, 70, 70], "count": 6, "avg_pct": 52}, {"full": "Jennifer Gutierrez Encinas", "instruments_domain": ["Batería"], "attended": 5, "total": 17, "songs_by_role": {"Batería": [{"cancion": "Black velvet", "interprete": "Alannah Myles", "pct": 100, "section": "banda", "in_unirock": true}, {"cancion": "Washing Machine Heart", "interprete": "Miski", "pct": 80, "section": "banda", "in_unirock": false}, {"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "7 nation army", "interprete": "The White Stripes", "pct": 100, "section": "banda", "in_unirock": true}, {"cancion": "Frances Limón", "interprete": "Enanitos verdes", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [100, 80, 100, 100, 0], "count": 5, "avg_pct": 76}, {"full": "Alejandro Fabián Yañez Parra", "instruments_domain": ["Guitarra"], "attended": 2, "total": 17, "songs_by_role": {"Guitarra 2": [{"cancion": "Bat Country", "interprete": "Avenged Sevenfold", "pct": 70, "section": "banda", "in_unirock": true}], "Guitarra 1": [{"cancion": "Neon/Slow dancing/ Belive", "interprete": "Jhon Mayer", "pct": 100, "section": "banda", "in_unirock": true}, {"cancion": "Mashup", "interprete": "21 Pilots", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mashup", "interprete": "Michael Jackson", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Black velvet", "interprete": "Alannah Myles", "pct": 80, "section": "banda", "in_unirock": true}]}, "all_pcts": [70, 100, 0, 0, 80], "count": 5, "avg_pct": 50}, {"full": "Nico Cueto", "instruments_domain": [], "attended": 1, "total": 17, "songs_by_role": {"Bajo": [{"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 10, "section": "banda", "in_unirock": false}, {"cancion": "I Love you So", "interprete": "The Walters", "pct": null, "section": "banda", "in_unirock": false}, {"cancion": "Frances Limón", "interprete": "Enanitos verdes", "pct": null, "section": "banda", "in_unirock": false}], "Voces": [{"cancion": "Jijiji", "interprete": "Los Redondos", "pct": 50, "section": "banda", "in_unirock": false}], "Guitarra 1": [{"cancion": "Jijiji", "interprete": "Los Redondos", "pct": 80, "section": "banda", "in_unirock": false}]}, "all_pcts": [10, 50, 80], "count": 5, "avg_pct": 47}, {"full": "Adrián Peredo Gutierrez", "instruments_domain": ["Guitarra"], "attended": 6, "total": 17, "songs_by_role": {"Teclado": [{"cancion": "Juegos de seducción/Lo que sangra", "interprete": "Soda Stereo", "pct": 0, "section": "banda", "in_unirock": true}], "Bajo": [{"cancion": "Black velvet", "interprete": "Alannah Myles", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Washing Machine Heart", "interprete": "Miski", "pct": 0, "section": "banda", "in_unirock": false}], "Guitarra 1": [{"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 0, "section": "banda", "in_unirock": false}], "Guitarra 2": [{"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 50, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 0, 0, 0, 50], "count": 5, "avg_pct": 10}, {"full": "Jeffrey David Pardo Paredes", "instruments_domain": ["Voz", "Guitarra"], "attended": 4, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Chachachá", "interprete": "Jósean Log", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "Golden Hour", "interprete": "Juke", "pct": 90, "section": "acusticas", "in_unirock": false}], "Guitarra 2": [{"cancion": "Chachachá", "interprete": "Jósean Log", "pct": 0, "section": "banda", "in_unirock": false}], "Voces 2": [{"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 50, "section": "banda", "in_unirock": false}]}, "all_pcts": [100, 0, 50, 90], "count": 4, "avg_pct": 60}, {"full": "Natalia Maldonado", "instruments_domain": ["Guitarra", "Bajo"], "attended": 4, "total": 17, "songs_by_role": {"Guitarra 1": [{"cancion": "Anarquía en Bs", "interprete": "Airbag", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Mirenla", "interprete": "Ciro", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Shes the one", "interprete": "Robbie Williams", "pct": null, "section": "banda", "in_unirock": false}, {"cancion": "Mercedes Benz/ Maybe/Piece of my heart", "interprete": "Janis Joplin", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 0, 0], "count": 4, "avg_pct": 0}, {"full": "Anibal Mariaca Saavedra", "instruments_domain": ["Voz"], "attended": 6, "total": 17, "songs_by_role": {"Voces 2": [{"cancion": "Vámonos De Viaje", "interprete": "Bandalos Chinos", "pct": null, "section": "banda", "in_unirock": false}, {"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 90, "section": "banda", "in_unirock": false}], "Voces": [{"cancion": "Washing Machine Heart", "interprete": "Miski", "pct": 90, "section": "banda", "in_unirock": false}]}, "all_pcts": [90, 90], "count": 3, "avg_pct": 90}, {"full": "Alira Macel Miranda Garcia", "instruments_domain": ["Voz", "Guitarra"], "attended": 1, "total": 17, "songs_by_role": {"Voces": [{"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Frances Limón", "interprete": "Enanitos verdes", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "San Lucas", "interprete": "Kevin Carl", "pct": 100, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [0, 100, 100], "count": 3, "avg_pct": 67}, {"full": "Jessica Bolivar", "instruments_domain": ["Voz"], "attended": 3, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Neon/Slow dancing/ Belive", "interprete": "Jhon Mayer", "pct": 0, "section": "banda", "in_unirock": true}, {"cancion": "Para no verte más", "interprete": "La Mosca/Operación triunfo", "pct": 100, "section": "banda", "in_unirock": false}, {"cancion": "Die On Tihs Hill/Envidia", "interprete": "Sienna Spiro/Naty Peluso", "pct": 100, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [0, 100, 100], "count": 3, "avg_pct": 67}, {"full": "Camila Ramos Rodriguez", "instruments_domain": ["Batería"], "attended": 6, "total": 17, "songs_by_role": {"Batería": [{"cancion": "Chachachá", "interprete": "Jósean Log", "pct": 70, "section": "banda", "in_unirock": false}, {"cancion": "And I Love Her/Here Comes The Sun/Michelle/She loves you", "interprete": "Beatles", "pct": 50, "section": "banda", "in_unirock": false}, {"cancion": "I Love you So", "interprete": "The Walters", "pct": 50, "section": "banda", "in_unirock": false}]}, "all_pcts": [70, 50, 50], "count": 3, "avg_pct": 57}, {"full": "Caleb Astulla Ubizaga", "instruments_domain": ["Piano"], "attended": 6, "total": 17, "songs_by_role": {"Teclado": [{"cancion": "Castillo Ambulante", "interprete": "Desconocido", "pct": null, "section": "acusticas", "in_unirock": false}, {"cancion": "Hijo de la luna", "interprete": "Mecano", "pct": null, "section": "acusticas", "in_unirock": false}, {"cancion": "Golden Hour", "interprete": "Juke", "pct": 50, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [50], "count": 3, "avg_pct": 50}, {"full": "Jasmine Juliano Fernandez", "instruments_domain": ["Voz", "Violín"], "attended": 3, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Locked out of heaven", "interprete": "Bruno Mars", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Qué bonito", "interprete": "Rosario", "pct": 100, "section": "banda", "in_unirock": false}], "Violín": [{"cancion": "Qué bonito", "interprete": "Rosario", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [0, 100, 0], "count": 3, "avg_pct": 33}, {"full": "Erik Alejandro Rendón Jimenez", "instruments_domain": ["Violín"], "attended": 10, "total": 17, "songs_by_role": {"Violín": [{"cancion": "Tu recuerdo sigue aquí", "interprete": "Riky Martin", "pct": 0, "section": "banda", "in_unirock": false}, {"cancion": "Castillo Ambulante", "interprete": "Desconocido", "pct": null, "section": "acusticas", "in_unirock": false}, {"cancion": "Hijo de la luna", "interprete": "Mecano", "pct": null, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [0], "count": 3, "avg_pct": 0}, {"full": "Belen Arce", "instruments_domain": ["Voz", "Guitarra"], "attended": 7, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Mercedes Benz/ Maybe/Piece of my heart", "interprete": "Janis Joplin", "pct": 90, "section": "banda", "in_unirock": false}, {"cancion": "De regreso", "interprete": "Casasola", "pct": 60, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [90, 60], "count": 2, "avg_pct": 75}, {"full": "Tiani Magalhaes", "instruments_domain": ["Guitarra"], "attended": 2, "total": 17, "songs_by_role": {"Voces": [{"cancion": "I Love you So", "interprete": "The Walters", "pct": 100, "section": "banda", "in_unirock": false}]}, "all_pcts": [100], "count": 1, "avg_pct": 100}, {"full": "Aleshka Garvizu", "instruments_domain": ["Voz"], "attended": 11, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Vámonos De Viaje", "interprete": "Bandalos Chinos", "pct": 80, "section": "banda", "in_unirock": false}]}, "all_pcts": [80], "count": 1, "avg_pct": 80}, {"full": "Mariana Villarroel Deheza", "instruments_domain": ["Voz"], "attended": 2, "total": 17, "songs_by_role": {"Voces": [{"cancion": "All I ask", "interprete": "Adele", "pct": 80, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [80], "count": 1, "avg_pct": 80}, {"full": "Fabiana Rojas Lizarraga", "instruments_domain": ["Voz"], "attended": 2, "total": 17, "songs_by_role": {"Voces": [{"cancion": "No me doy por vencido", "interprete": "Luis Fonsi", "pct": 70, "section": "acusticas", "in_unirock": false}]}, "all_pcts": [70], "count": 1, "avg_pct": 70}, {"full": "Natalia Castro", "instruments_domain": [], "attended": 1, "total": 17, "songs_by_role": {"Voces": [{"cancion": "Black velvet", "interprete": "Alannah Myles", "pct": 20, "section": "banda", "in_unirock": true}]}, "all_pcts": [20], "count": 1, "avg_pct": 20}, {"full": "Gari Mijael Mamani Condori", "instruments_domain": ["Guitarra", "Bajo"], "attended": 3, "total": 17, "songs_by_role": {"Guitarra 2": [{"cancion": "Anarquía en Bs", "interprete": "Airbag", "pct": 0, "section": "banda", "in_unirock": false}]}, "all_pcts": [0], "count": 1, "avg_pct": 0}, {"full": "Angela Nicole Carrasco Butrón", "instruments_domain": ["Voz"], "attended": 0, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Camila Molina Toro", "instruments_domain": ["Batería", "Teclado", "Bajo"], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Diego Burgoa", "instruments_domain": [], "attended": 2, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Emily Fabiana Quispe Quispe", "instruments_domain": ["Voz"], "attended": 2, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Fabiola Fernandez Jaime", "instruments_domain": ["Voz", "Quena"], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Karina Morales", "instruments_domain": ["Voz"], "attended": 3, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Mariel Samantha Salinas Vela", "instruments_domain": ["Voz"], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Mario Alberto Encinas", "instruments_domain": [], "attended": 0, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "María Jesus Castro", "instruments_domain": ["Voz"], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Nataniel Romero", "instruments_domain": [], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Paulo Alejandro Mejía Mendoza", "instruments_domain": ["Voz"], "attended": 0, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Rebeca Alarcón Fernandez", "instruments_domain": ["Voz"], "attended": 0, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Sebastián Dávalos Rosas", "instruments_domain": ["Voz", "Guitarra"], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Sebastián Gamboa", "instruments_domain": [], "attended": 1, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}, {"full": "Susana Vera", "instruments_domain": [], "attended": 3, "total": 17, "songs_by_role": {}, "all_pcts": [], "count": 0, "avg_pct": null}]};
+
+const ROLE_DOT = {"Voces":"voces","Voces 2":"voces","Guitarra 1":"guitarra","Guitarra 2":"guitarra","Guitarra 3":"guitarra","Bajo":"bajo","Teclado":"teclado","Batería":"bateria","Violín":"violin","Armónica":"armonica"};
+
+function pctClass(p){
+  if(p==null) return "pct-na";
+  if(p>=70) return "pct-ok";
+  if(p>=40) return "pct-warn";
+  return "pct-low";
+}
+function pctColor(p){
+  if(p==null) return "#6b6580";
+  if(p>=70) return "#7db87a";
+  if(p>=40) return "#e8a849";
+  return "#d46a6a";
+}
+function pctLabel(p){ return p==null ? "—" : p + "%"; }
+
+function roleCategory(role){
+  const r = role.toLowerCase();
+  if(r.includes("voces")||r.includes("voz")) return "voces";
+  if(r.includes("guitarra")) return "guitarra";
+  if(r==="bajo") return "bajo";
+  if(r==="teclado") return "teclado";
+  if(r==="batería"||r==="bateria") return "bateria";
+  if(r==="violín"||r==="violin") return "violin";
+  if(r==="armónica"||r==="armonica") return "armonica";
+  return "all";
+}
+
+/* ---------- KPIs ---------- */
+function renderKpis(){
+  document.getElementById("kpi-musicians").textContent = DATA.kpis.musicians_active;
+  document.getElementById("kpi-songs").textContent = DATA.kpis.songs_total;
+  document.getElementById("kpi-avg").textContent = DATA.kpis.avg_global + "%";
+}
+
+/* ---------- SONGS ---------- */
+let songFilter = "all";
+let songSort = "pct-desc";
+
+function renderSongs(){
+  const c = document.getElementById("songs-container");
+  c.innerHTML = "";
+  let list = DATA.songs.slice();
+  if(songFilter !== "all") list = list.filter(s => s.section === songFilter);
+  if(songSort === "pct-desc") list.sort((a,b) => (b.global_pct ?? -1) - (a.global_pct ?? -1));
+  else if(songSort === "pct-asc") list.sort((a,b) => (a.global_pct ?? 101) - (b.global_pct ?? 101));
+  list.forEach((s, i) => {
+    const card = document.createElement("div");
+    card.className = "song-card";
+    card.style.animationDelay = (i * 0.03) + "s";
+    const pct = s.global_pct;
+    const barW = pct == null ? 0 : pct;
+    const barColor = pctColor(pct);
+    const sectionClass = "badge-" + s.section;
+    const sectionLabel = s.section_label;
+    let rolesHtml = "";
+    s.roles.forEach(r => {
+      const dot = ROLE_DOT[r.role] || "voces";
+      const name = r.musician_full || r.musician_display || "<span class='empty'>sin asignar</span>";
+      rolesHtml += `<div class="role-row">
+        <div class="role-label"><span class="dot ${dot}"></span>${r.role}</div>
+        <div class="role-musician ${r.musician_display ? '' : 'empty'}">${name}</div>
+        <div class="role-pct">${pctLabel(r.pct)}</div>
+      </div>`;
+    });
+    card.innerHTML = `<div class="song-head" onclick="toggleSong(this)">
+      <div class="song-info">
+        <div class="song-title">${s.cancion}</div>
+        <div class="song-artist">${s.interprete}</div>
+      </div>
+      <span class="song-section-badge ${sectionClass}">${sectionLabel}</span>
+      <div class="song-pct ${pctClass(pct)}">${pctLabel(pct)}</div>
+      <div class="song-toggle">+</div>
+      <div class="song-progress" style="width:${barW}%;background:${barColor}"></div>
+    </div>
+    <div class="song-body"><div class="song-body-inner">${rolesHtml}</div></div>`;
+    c.appendChild(card);
+  });
+}
+
+function toggleSong(h){
+  const b = h.nextElementSibling;
+  const t = h.querySelector(".song-toggle");
+  b.classList.toggle("open");
+  t.classList.toggle("open");
+}
+
+document.querySelectorAll("#song-filters .filter-btn").forEach(b => {
+  b.addEventListener("click", () => {
+    if(b.classList.contains("active")){
+      b.classList.remove("active");
+      songFilter = "all";
+    } else {
+      document.querySelectorAll("#song-filters .filter-btn").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      songFilter = b.dataset.filter;
+    }
+    renderSongs();
+  });
+});
+
+document.querySelectorAll("#song-sort .filter-btn").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#song-sort .filter-btn").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    songSort = b.dataset.sort;
+    renderSongs();
+  });
+});
+
+/* ---------- MUSICIANS ---------- */
+let musicianFilter = "all";
+
+function renderMusicians(){
+  const c = document.getElementById("musicians-container");
+  c.innerHTML = "";
+  // ordenados: activos primero (count desc), luego inactivos al fondo
+  const list = DATA.roster.filter(m => m.count > 0);
+  list.forEach((m, i) => {
+    if(musicianFilter !== "all" && !Object.keys(m.songs_by_role).some(r => roleCategory(r) === musicianFilter)) return;
+    const card = document.createElement("div");
+    card.className = "musician-card" + (m.count === 0 ? " inactive" : "");
+    card.style.animationDelay = (i * 0.03) + "s";
+    const attPct = m.total > 0 ? Math.round((m.attended / m.total) * 100) : 0;
+    let body = "";
+    if(m.instruments_domain && m.instruments_domain.length){
+      body += `<div class="mc-block"><div class="mc-block-label">Instrumentos</div><div class="mc-chips">${m.instruments_domain.map(i => `<span class="mc-chip">${i}</span>`).join("")}</div></div>`;
+    }
+    if(m.total > 0){
+      body += `<div class="mc-block"><div class="mc-block-label">Asistencia a ensayos</div><div class="mc-attendance-bar"><span><strong style="color:var(--cream)">${m.attended}</strong>/${m.total}</span><div class="bar"><div class="fill" style="width:${attPct}%"></div></div><span>${attPct}%</span></div></div>`;
+    }
+    if(Object.keys(m.songs_by_role).length){
+      body += `<div class="mc-block"><div class="mc-block-label">Asignaciones (${m.count})</div>`;
+      Object.entries(m.songs_by_role).forEach(([role, songs]) => {
+        if(musicianFilter !== "all" && roleCategory(role) !== musicianFilter) return;
+        const dot = ROLE_DOT[role] || "voces";
+        body += `<div class="mc-role-block"><div class="mc-role-label"><span class="dot ${dot}"></span>${role} (${songs.length})</div>`;
+        songs.forEach(s => {
+          body += `<div class="mc-song-line"><span>${s.cancion}<span class="artist"> · ${s.interprete}</span></span><span class="mc-song-pct ${pctClass(s.pct)}" style="padding:.05em .35em;border-radius:2px">${pctLabel(s.pct)}</span></div>`;
+        });
+        body += `</div>`;
+      });
+      body += `</div>`;
+    }
+    if(!body){
+      body = `<div class="mc-block"><div class="mc-block-label">Sin asignaciones</div><p style="color:var(--dim);font-size:.85rem">Este músico aún no tiene canciones asignadas en el repertorio.</p></div>`;
+    }
+    card.innerHTML = `<div class="mc-head" onclick="toggleMusician(this)">
+      <div class="mc-name">${m.full}</div>
+      <div class="mc-meta">
+        <span class="mc-attendance">${m.attended}/${m.total}</span>
+        <span class="mc-count">${m.count}</span>
+      </div>
+      <div class="mc-toggle">+</div>
+    </div>
+    <div class="mc-body"><div class="mc-body-inner">${body}</div></div>`;
+    c.appendChild(card);
+  });
+}
+
+function toggleMusician(h){
+  const b = h.nextElementSibling;
+  const t = h.querySelector(".mc-toggle");
+  b.classList.toggle("open");
+  t.classList.toggle("open");
+}
+
+document.querySelectorAll("#musician-filters .filter-btn").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#musician-filters .filter-btn").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    musicianFilter = b.dataset.filter;
+    renderMusicians();
+  });
+});
+
+/* ---------- EVENTOS ---------- */
+function renderEventos(){
+  const c = document.getElementById("eventos-container");
+  c.innerHTML = "";
+  DATA.eventos.forEach((ev, eIdx) => {
+    const header = document.createElement("div");
+    header.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin:" + (eIdx > 0 ? "2.5rem 0 1rem" : "0 0 1.2rem") + ";display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap";
+    const avgLbl = ev.avg_pct == null ? "—" : ev.avg_pct + "%";
+    header.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--cream);letter-spacing:0;text-transform:none">${ev.name}</span><span style="color:var(--dim)">${ev.songs.length} canciones · promedio <span style="color:var(--cream2)">${avgLbl}</span></span>`;
+    c.appendChild(header);
+    const sorted = ev.songs.slice().sort((a,b) => (b.global_pct ?? -1) - (a.global_pct ?? -1));
+    sorted.forEach((s, i) => {
+      const card = document.createElement("div");
+      card.className = "song-card";
+      card.style.animationDelay = (i * 0.03) + "s";
+      const pct = s.global_pct;
+      const barW = pct == null ? 0 : pct;
+      const barColor = pctColor(pct);
+      let rolesHtml = "";
+      s.roles.forEach(r => {
+        const dot = ROLE_DOT[r.role] || "voces";
+        const name = r.musician_full || r.musician_display || "<span class='empty'>sin asignar</span>";
+        rolesHtml += `<div class="role-row">
+          <div class="role-label"><span class="dot ${dot}"></span>${r.role}</div>
+          <div class="role-musician ${r.musician_display ? '' : 'empty'}">${name}</div>
+          <div class="role-pct">${pctLabel(r.pct)}</div>
+        </div>`;
+      });
+      card.innerHTML = `<div class="song-head" onclick="toggleSong(this)">
+        <div class="song-info">
+          <div class="song-title">${s.cancion}</div>
+          <div class="song-artist">${s.interprete}</div>
+        </div>
+        <div class="song-pct ${pctClass(pct)}">${pctLabel(pct)}</div>
+        <div class="song-toggle">+</div>
+        <div class="song-progress" style="width:${barW}%;background:${barColor}"></div>
+      </div>
+      <div class="song-body"><div class="song-body-inner">${rolesHtml}</div></div>`;
+      c.appendChild(card);
+    });
+  });
+}
+
+renderKpis();
+renderSongs();
+renderMusicians();
+renderEventos();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Secrets
+.streamlit/secrets.toml
+admin/.streamlit/secrets.toml
+
+# Build artifacts (regenerados a demanda)
+upb_data.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Mockups internos
+_mockups/
+
+# Estado local del Netlify CLI (auto-generado)
+.netlify/
+
+# Claude Code (config local)
+.claude/
+
+# Archivos no relacionados con el sitio UPB (cápsulas Luigi anteriores)
+cartel-afonico.html
+luigi-baudoinwww.html
+taller-copland.html
+muÌ_sica gourmet.pdf
+*.pdf
