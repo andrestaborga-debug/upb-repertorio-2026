@@ -3,11 +3,11 @@
 Subí los 3 xlsx actualizados → regenera HTML → publica en Netlify.
 Sin terminal, sin git.
 """
-import io
+import hashlib
 import os
 import sys
 import tempfile
-import zipfile
+import time
 from pathlib import Path
 
 import requests
@@ -149,34 +149,65 @@ if submit:
                 st.exception(e)
                 st.stop()
 
-            st.write("📦 Empaquetando…")
-            zip_buf = io.BytesIO()
-            with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
-                zf.write(index_path, "index.html")
-            zip_buf.seek(0)
+            # Netlify digest-based deploy: registramos los SHA1 de cada archivo,
+            # el servidor nos dice cuáles faltan, los subimos uno por uno con su
+            # Content-Type correcto (inferido por extensión).
+            with open(index_path, "rb") as f:
+                index_bytes = f.read()
+            files_map = {"/index.html": hashlib.sha1(index_bytes).hexdigest()}
 
-            st.write("🚀 Subiendo a Netlify…")
+            st.write("🚀 Registrando deploy en Netlify…")
+            headers = {"Authorization": f"Bearer {NETLIFY_TOKEN}"}
             try:
                 resp = requests.post(
                     f"https://api.netlify.com/api/v1/sites/{SITE_ID}/deploys",
-                    headers={
-                        "Authorization": f"Bearer {NETLIFY_TOKEN}",
-                        "Content-Type": "application/zip",
-                    },
-                    data=zip_buf.getvalue(),
-                    timeout=120,
+                    headers={**headers, "Content-Type": "application/json"},
+                    json={"files": files_map, "async": False},
+                    timeout=60,
                 )
             except Exception as e:
                 status.update(label="Error de red con Netlify", state="error")
                 st.exception(e)
                 st.stop()
-
             if not resp.ok:
                 status.update(label="Netlify rechazó el deploy", state="error")
                 st.error(f"HTTP {resp.status_code}: {resp.text[:500]}")
                 st.stop()
-
             deploy = resp.json()
+            deploy_id = deploy["id"]
+            required = set(deploy.get("required") or [])
+
+            st.write(f"📤 Subiendo {len(required)} archivo(s)…")
+            for path, sha in files_map.items():
+                if sha not in required:
+                    continue
+                content = index_bytes if path == "/index.html" else b""
+                up = requests.put(
+                    f"https://api.netlify.com/api/v1/deploys/{deploy_id}/files{path}",
+                    headers={**headers, "Content-Type": "application/octet-stream"},
+                    data=content,
+                    timeout=120,
+                )
+                if not up.ok:
+                    status.update(label="Error subiendo archivo", state="error")
+                    st.error(f"HTTP {up.status_code}: {up.text[:500]}")
+                    st.stop()
+
+            st.write("⏳ Esperando que Netlify procese…")
+            for _ in range(30):
+                state_resp = requests.get(
+                    f"https://api.netlify.com/api/v1/sites/{SITE_ID}/deploys/{deploy_id}",
+                    headers=headers, timeout=30,
+                )
+                deploy = state_resp.json()
+                if deploy.get("state") == "ready":
+                    break
+                if deploy.get("state") == "error":
+                    status.update(label="Netlify falló al procesar", state="error")
+                    st.error(deploy.get("error_message") or "error desconocido")
+                    st.stop()
+                time.sleep(1)
+
             status.update(label="✅ ¡Publicado!", state="complete")
 
     st.success("Sitio actualizado correctamente.")
