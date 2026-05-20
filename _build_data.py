@@ -262,8 +262,10 @@ def parse_song_row(r):
 def extract_songs(base_dir):
     path = os.path.join(base_dir, "UPB Repertorio 2026 DEF.xlsx")
     sheets = read_xlsx(path)
-    repertorio = dict(sheets)["Repertorio"]
-    unirock = dict(sheets)["Unirock"]
+    sheets_d = dict(sheets)
+    repertorio = sheets_d["Repertorio"]
+    # Unirock ya no vive en el repertorio (migró a Eventos.xlsx) — opcional para retrocompat
+    unirock = sheets_d.get("Unirock", {})
     # secciones en Repertorio: rows 5-32 = BANDA, rows 33-46 = ACÚSTICAS
     banda = []
     acusticas = []
@@ -298,12 +300,12 @@ def extract_songs(base_dir):
 
 # ---------- 4. EVENTOS: xlsx separado, una hoja por evento ----------
 def extract_events(base_dir, fallback_unirock=None):
-    """Lee UPB Eventos.xlsx — cada hoja = un evento con su setlist.
+    """Lee Eventos.xlsx — cada hoja = un evento con su setlist.
 
     Si el archivo no existe, devuelve un único evento "UniRock" con
-    fallback_unirock (el sheet Unirock del repertorio xlsx).
+    fallback_unirock (legacy: sheet Unirock del repertorio xlsx).
     """
-    path = os.path.join(base_dir, "UPB Eventos.xlsx")
+    path = os.path.join(base_dir, "Eventos.xlsx")
     if not os.path.exists(path):
         if fallback_unirock:
             return [{"name": "UniRock", "songs": fallback_unirock}]
@@ -312,19 +314,24 @@ def extract_events(base_dir, fallback_unirock=None):
     events = []
     for sheet_name, rows in sheets:
         songs = []
-        empty_streak = 0
         for rnum in sorted(rows.keys()):
             if rnum < 3:
                 continue
             r = rows[rnum]
+            label0 = clean(cell(r, 0))
+            label1 = clean(cell(r, 1))
+            label2 = clean(cell(r, 2))
+            # saltar separadores de sección (BANDA / ACÚSTICAS en col 0 o 1)
+            if label0.upper() in ("BANDA", "ACÚSTICAS", "ACUSTICAS"):
+                continue
+            if label1.upper() in ("BANDA", "ACÚSTICAS", "ACUSTICAS") and not label2:
+                continue
+            # saltar fila de cabeceras de columna
+            if label0 == "#" or label1.lower() in ("interprete", "intérprete"):
+                continue
             song = parse_song_row(r)
             if song and song["cancion"]:
                 songs.append(song)
-                empty_streak = 0
-            else:
-                empty_streak += 1
-                if empty_streak >= 2:
-                    break
         if songs:
             events.append({"name": sheet_name.strip(), "songs": songs})
     return events

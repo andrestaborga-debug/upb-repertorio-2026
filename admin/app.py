@@ -45,7 +45,7 @@ EXPECTED_FILES = {
     "repertorio": "UPB Repertorio 2026 DEF.xlsx",
     "lista": "UPB Lista 2026.xlsx",
     "cronograma": "Cronograma de ensayos UPB.xlsx",
-    "eventos": "UPB Eventos.xlsx",  # opcional
+    "eventos": "Eventos.xlsx",  # opcional
 }
 REQUIRED_KEYS = ["repertorio", "lista", "cronograma"]
 
@@ -257,9 +257,9 @@ def render_upload():
                 type=["xlsx"], key="cron",
             ),
         }
-        st.markdown("**Opcional** (si no lo subís, se usa la hoja Unirock del repertorio como evento único):")
+        st.markdown("**Opcional** (si no lo subís, no se muestran eventos):")
         files["eventos"] = st.file_uploader(
-            "Eventos · `UPB Eventos.xlsx` (cada hoja = un evento)",
+            "Eventos · `Eventos.xlsx` (cada hoja = un evento)",
             type=["xlsx"], key="ev",
         )
         st.subheader("2 · Publicar")
