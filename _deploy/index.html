@@ -446,8 +446,7 @@ function renderEventos(){
     ev.songs.forEach((s, i) => {
       const li = document.createElement("li");
       li.style.cssText = "counter-increment:ev-item;padding:.7rem 0;border-bottom:1px solid var(--border);display:flex;gap:1rem;align-items:baseline;font-family:'Cormorant Garamond',serif";
-      const dur = s.duration ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--dim);margin-left:auto;letter-spacing:.1em">${s.duration}</span>` : '';
-      li.innerHTML = `<span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--dim);min-width:1.8em;text-align:right">${(i+1).toString().padStart(2,'0')}</span><span style="flex:1"><strong style="color:var(--cream);font-size:1.1rem">${s.cancion}</strong><span style="color:var(--dim);font-size:.8rem;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;margin-left:.6em">${s.interprete}</span></span>${dur}`;
+      li.innerHTML = `<span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--dim);min-width:1.8em;text-align:right">${(i+1).toString().padStart(2,'0')}</span><span style="flex:1"><strong style="color:var(--cream);font-size:1.1rem">${s.cancion}</strong><span style="color:var(--dim);font-size:.8rem;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;margin-left:.6em">${s.interprete}</span></span>`;
       list.appendChild(li);
     });
     c.appendChild(list);
