@@ -267,12 +267,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
-/* NAV */
-.nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.8rem 1.25rem;display:flex;align-items:center;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:.7rem}
-.nav-brand{color:var(--amber);font-weight:500;letter-spacing:.15em;text-transform:uppercase}
-.nav-links{display:flex;gap:1.5rem}
-.nav-links a{color:var(--dim);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .3s}
-.nav-links a:hover{color:var(--amber)}
+/* TABS BAR */
+.tabs-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.7rem 1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.tabs-brand{font-family:'IBM Plex Mono',monospace;color:var(--amber);font-size:.7rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-right:auto}
+.tabs-buttons{display:flex;gap:.4rem}
+.tab-btn{font-family:'IBM Plex Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;padding:.7em 1.3em;min-height:42px;border:1px solid var(--border);background:transparent;color:var(--cream2);border-radius:3px;cursor:pointer;transition:all .25s;-webkit-tap-highlight-color:transparent}
+.tab-btn:hover{border-color:var(--amber);color:var(--amber)}
+.tab-btn.active{background:var(--amber);color:var(--bg);border-color:var(--amber);font-weight:600}
+.tab-section{display:none;animation:fadeIn .35s ease-out}
+.tab-section.active{display:block}
+.back-to-top{position:fixed;bottom:1.2rem;right:1.2rem;z-index:200;width:44px;height:44px;border-radius:50%;background:rgba(20,20,30,.85);backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--amber);font-size:1.3rem;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .25s;-webkit-tap-highlight-color:transparent}
+.back-to-top:hover{background:rgba(232,168,73,.15);border-color:var(--amber)}
+.back-to-top.visible{display:flex}
 
 /* SECTIONS */
 section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
@@ -380,8 +386,11 @@ section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
   .hero-stats{gap:1.3rem}
   .hero-stat .lbl{font-size:.6rem}
   .next-rehearsal{font-size:.65rem;letter-spacing:.1em}
-  .nav{padding:.7rem 1rem;font-size:.65rem}
-  .nav-links{display:none}
+  .tabs-bar{padding:.6rem .8rem;gap:.5rem}
+  .tabs-brand{display:none}
+  .tabs-buttons{width:100%;gap:.3rem}
+  .tab-btn{flex:1;padding:.65em .5em;font-size:.7rem;letter-spacing:.05em;min-height:44px}
+  .back-to-top{bottom:1rem;right:1rem;width:42px;height:42px}
   section{padding:3rem 1rem}
   .section-sub{margin-bottom:2rem}
   .filter-bar{gap:.5rem;flex-wrap:nowrap;overflow-x:auto;margin:0 -1rem 1.5rem;padding:0 1rem .5rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -432,18 +441,18 @@ section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
   <div class="scroll-hint">↓ scroll ↓</div>
 </div>
 
-<nav class="nav">
-  <div class="nav-brand">UPB Música</div>
-  <div class="nav-links">
-    <a href="#repertorio">Repertorio</a>
-    <a href="#musicos">Músicos</a>
-    <a href="#eventos">Eventos</a>
+<nav class="tabs-bar">
+  <div class="tabs-brand">UPB Música</div>
+  <div class="tabs-buttons">
+    <button class="tab-btn active" data-tab="repertorio">Repertorio</button>
+    <button class="tab-btn" data-tab="musicos">Músicos</button>
+    <button class="tab-btn" data-tab="eventos">Eventos</button>
   </div>
 </nav>
 
-<section id="repertorio">
+<section id="repertorio" class="tab-section active">
   <div class="section-title">Repertorio</div>
-  <div class="section-sub">38 canciones · % de avance por rol</div>
+  <div class="section-sub" id="repertorio-sub">% de avance por rol</div>
   <div class="filter-bar" id="song-filters">
     <button class="filter-btn" data-filter="banda">Banda</button>
     <button class="filter-btn" data-filter="acusticas">Acústicas</button>
@@ -456,7 +465,7 @@ section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
   <div id="songs-container"></div>
 </section>
 
-<section id="musicos">
+<section id="musicos" class="tab-section">
   <div class="section-title">Músicos</div>
   <div class="section-sub">Asignaciones, instrumentos y asistencia · click para expandir</div>
   <div class="filter-bar" id="musician-filters">
@@ -471,11 +480,13 @@ section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
   <div id="musicians-container"></div>
 </section>
 
-<section id="eventos">
+<section id="eventos" class="tab-section">
   <div class="section-title">Eventos</div>
   <div class="section-sub">Setlists para presentaciones</div>
   <div id="eventos-container"></div>
 </section>
+
+<button class="back-to-top" id="back-to-top" aria-label="Volver arriba">↑</button>
 
 <div class="footer">
   <div class="logo">♪ UPB</div>
@@ -518,6 +529,8 @@ function renderKpis(){
   document.getElementById("kpi-musicians").textContent = DATA.kpis.musicians_active;
   document.getElementById("kpi-songs").textContent = DATA.kpis.songs_total;
   document.getElementById("kpi-avg").textContent = DATA.kpis.avg_global + "%";
+  document.getElementById("repertorio-sub").textContent =
+    DATA.kpis.songs_total + " canciones · % de avance por rol";
 }
 
 /* ---------- SONGS ---------- */
@@ -681,6 +694,34 @@ function renderEventos(){
     c.appendChild(list);
   });
 }
+
+/* ---------- TABS (Repertorio / Músicos / Eventos) ---------- */
+const TAB_NAMES = ["repertorio", "musicos", "eventos"];
+function showTab(name, scroll){
+  if (!TAB_NAMES.includes(name)) name = "repertorio";
+  document.querySelectorAll(".tab-section").forEach(s => s.classList.toggle("active", s.id === name));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  if (history.replaceState) history.replaceState(null, "", "#" + name);
+  if (scroll) {
+    // siempre llevar la vista al inicio del contenido (debajo del hero)
+    const tabsBar = document.querySelector(".tabs-bar");
+    window.scrollTo({top: tabsBar.offsetTop, behavior: "smooth"});
+  }
+}
+document.querySelectorAll(".tab-btn").forEach(b => {
+  b.addEventListener("click", () => showTab(b.dataset.tab, true));
+});
+window.addEventListener("hashchange", () => showTab((location.hash || "").slice(1), true));
+// estado inicial: lo que diga la URL, default repertorio (sin scroll)
+showTab((location.hash || "#repertorio").slice(1), false);
+
+/* ---------- BACK TO TOP ---------- */
+const backBtn = document.getElementById("back-to-top");
+function updateBackBtn(){
+  backBtn.classList.toggle("visible", window.scrollY > 500);
+}
+window.addEventListener("scroll", updateBackBtn, {passive: true});
+backBtn.addEventListener("click", () => window.scrollTo({top: 0, behavior: "smooth"}));
 
 renderKpis();
 renderSongs();
