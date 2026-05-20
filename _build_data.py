@@ -299,42 +299,140 @@ def extract_songs(base_dir):
     return {"banda": banda, "acusticas": acusticas, "unirock": unirock_songs}
 
 # ---------- 4. EVENTOS: xlsx separado, una hoja por evento ----------
-def extract_events(base_dir, fallback_unirock=None):
-    """Lee Eventos.xlsx — cada hoja = un evento con su setlist.
+def format_duration(raw):
+    """Acepta 'mm' entero, 'mm:ss', o un número fraccionario tipo Excel-time
+    (donde el usuario tipeó mm:ss pero Excel lo guardó como hh:mm fraccional)."""
+    if raw is None or raw == "":
+        return ""
+    s = str(raw).strip()
+    try:
+        v = float(s)
+        if 0 < v < 1:
+            # Excel guardó "mm:ss" como hh:mm fraccional del día
+            mm = int(v * 24)
+            ss = round((v * 24 - mm) * 60)
+            if ss == 60:
+                mm += 1; ss = 0
+            return f"{mm}:{ss:02d}"
+        if v == int(v):
+            return f"{int(v)} min"
+        return s
+    except ValueError:
+        return s
 
-    Si el archivo no existe, devuelve un único evento "UniRock" con
-    fallback_unirock (legacy: sheet Unirock del repertorio xlsx).
-    """
+def parse_event_sheet(sheet_name, rows):
+    """Parser específico para hojas de Eventos.xlsx.
+    Detecta la fila de cabecera (col 0 = '#') y mapea las columnas
+    'Duración' e 'inst' por nombre, no por posición."""
+    songs = []
+    header_row_idx = None
+    duration_col = None
+    inst_col = None
+
+    for rnum in sorted(rows.keys()):
+        r = rows[rnum]
+        if header_row_idx is None:
+            if clean(cell(r, 0)) == "#":
+                header_row_idx = rnum
+                for ci in range(0, 30):
+                    h = clean(cell(r, ci)).lower()
+                    if "dura" in h:
+                        duration_col = ci
+                    elif h == "inst":
+                        inst_col = ci
+                continue
+            else:
+                continue
+        if rnum <= header_row_idx:
+            continue
+        # saltar separadores de sección
+        label0 = clean(cell(r, 0))
+        label1 = clean(cell(r, 1))
+        if label0.upper() in ("BANDA", "ACÚSTICAS", "ACUSTICAS"):
+            continue
+        if label1.upper() in ("BANDA", "ACÚSTICAS", "ACUSTICAS") and not clean(cell(r, 2)):
+            continue
+        interprete = clean(cell(r, 1))
+        cancion = clean(cell(r, 2))
+        if not (interprete or cancion):
+            continue
+        duration_raw = clean(cell(r, duration_col)) if duration_col is not None else ""
+        inst_raw = clean(cell(r, inst_col)) if inst_col is not None else ""
+        songs.append({
+            "interprete": interprete,
+            "cancion": cancion,
+            "duration_raw": duration_raw,
+            "duration": format_duration(duration_raw),
+            "inst": inst_raw,
+        })
+    return songs
+
+def extract_events(base_dir):
+    """Lee Eventos.xlsx — cada hoja = un evento. Sin fallback (la hoja
+    Unirock dejó de vivir en el repertorio)."""
     path = os.path.join(base_dir, "Eventos.xlsx")
     if not os.path.exists(path):
-        if fallback_unirock:
-            return [{"name": "UniRock", "songs": fallback_unirock}]
         return []
     sheets = read_xlsx(path)
     events = []
     for sheet_name, rows in sheets:
-        songs = []
-        for rnum in sorted(rows.keys()):
-            if rnum < 3:
-                continue
-            r = rows[rnum]
-            label0 = clean(cell(r, 0))
-            label1 = clean(cell(r, 1))
-            label2 = clean(cell(r, 2))
-            # saltar separadores de sección (BANDA / ACÚSTICAS en col 0 o 1)
-            if label0.upper() in ("BANDA", "ACÚSTICAS", "ACUSTICAS"):
-                continue
-            if label1.upper() in ("BANDA", "ACÚSTICAS", "ACUSTICAS") and not label2:
-                continue
-            # saltar fila de cabeceras de columna
-            if label0 == "#" or label1.lower() in ("interprete", "intérprete"):
-                continue
-            song = parse_song_row(r)
-            if song and song["cancion"]:
-                songs.append(song)
+        songs = parse_event_sheet(sheet_name, rows)
         if songs:
             events.append({"name": sheet_name.strip(), "songs": songs})
     return events
+
+# ---------- 4b. CALENDARIO COMPLETO: todos los eventos del cronograma ----------
+DAYS_ES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+
+def extract_calendar(base_dir):
+    """Lee Cronograma de ensayos UPB.xlsx y captura TODOS los eventos
+    (ensayos, conciertos, presentaciones, etc.), no solo los ensayos.
+
+    Estructura del xlsx: bloques de filas {fecha-row, evento-row, extra-row?}.
+    La fila de fechas se identifica porque tiene ≥3 serials de fecha.
+    """
+    path = os.path.join(base_dir, "Cronograma de ensayos UPB.xlsx")
+    sheets = read_xlsx(path)
+    _, rows = sheets[0]
+    sorted_rows = sorted(rows.keys())
+
+    date_row_indices = []
+    for rnum in sorted_rows:
+        r = rows[rnum]
+        date_count = sum(1 for v in r.values() if serial_to_date(v))
+        if date_count >= 3:
+            date_row_indices.append(rnum)
+
+    entries = []
+    for drow in date_row_indices:
+        date_data = rows[drow]
+        event_data = rows.get(drow + 1, {})
+        extra_data = rows.get(drow + 2, {})
+        for ci, val in date_data.items():
+            dt = serial_to_date(val)
+            if not dt:
+                continue
+            event = clean(event_data.get(ci, ""))
+            extra = clean(extra_data.get(ci, ""))
+            if not event and not extra:
+                continue
+            entries.append({
+                "date": dt.strftime("%Y-%m-%d"),
+                "day": DAYS_ES[dt.weekday()],
+                "event": event,
+                "extra": extra or None,
+            })
+    entries.sort(key=lambda x: x["date"])
+    # dedupe (mismas date+event)
+    seen = set()
+    unique = []
+    for e in entries:
+        key = (e["date"], e["event"], e.get("extra"))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(e)
+    return unique
 
 # ---------- 5. PIPELINE ----------
 def all_song_assignments(songs):
@@ -354,12 +452,14 @@ def all_song_assignments(songs):
 
 def build(base_dir, write_json=True, verbose=False):
     rehearsals = extract_rehearsals(base_dir)
+    calendar = extract_calendar(base_dir)
     musicians = extract_musicians(base_dir)
     songs = extract_songs(base_dir)
-    events = extract_events(base_dir, fallback_unirock=songs.get("unirock"))
+    events = extract_events(base_dir)
     assignments = all_song_assignments(songs)
     data = {
         "rehearsals": rehearsals,
+        "calendar": calendar,
         "musicians_raw": musicians,
         "songs": songs,
         "events": events,
@@ -372,7 +472,7 @@ def build(base_dir, write_json=True, verbose=False):
             json.dump(data, f, ensure_ascii=False, indent=2)
         if verbose:
             print(f"Wrote {out_path}")
-            print(f"Rehearsals: {len(rehearsals)} | Musicians: {len(musicians)}")
+            print(f"Rehearsals: {len(rehearsals)} | Calendar entries: {len(calendar)} | Musicians: {len(musicians)}")
             print(f"Songs banda: {len(songs['banda'])} | acústicas: {len(songs['acusticas'])} | unirock: {len(songs['unirock'])}")
             print(f"Events: {len(events)} ({', '.join(e['name'] + '×' + str(len(e['songs'])) for e in events)})")
             print(f"Assignments: {len(assignments)}")

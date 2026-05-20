@@ -129,45 +129,73 @@ def render_dashboard(data):
                 f"última carga hace {int((time.time() - st.session_state.get('fetched_at', time.time())))}s")
     st.divider()
 
-    sub_eventos, sub_rep, sub_mus = st.tabs(
-        ["🎤 Eventos", "🎵 Repertorio", "👥 Músicos"]
+    sub_eventos, sub_rep, sub_mus, sub_cal = st.tabs(
+        ["🎤 Eventos", "🎵 Repertorio", "👥 Músicos", "📅 Calendario"]
     )
 
     # ===== EVENTOS =====
     with sub_eventos:
         if not eventos:
-            st.info("No hay eventos cargados todavía. Subí `UPB Eventos.xlsx` en la pestaña Actualizar.")
+            st.info("No hay eventos cargados todavía. Subí `Eventos.xlsx` en la pestaña Actualizar.")
         for ev in eventos:
             avg = ev.get("avg_pct")
-            with st.expander(
-                f"**{ev['name']}** · {len(ev['songs'])} canciones · promedio {avg}%" if avg is not None
-                else f"**{ev['name']}** · {len(ev['songs'])} canciones",
-                expanded=True,
-            ):
-                for s in sorted(ev["songs"], key=lambda x: -(x.get("global_pct") or -1)):
-                    pct = s.get("global_pct")
-                    pct_lbl = f"{pct}%" if pct is not None else "—"
-                    color = pct_color(pct)
-                    st.markdown(
-                        f"<div style='display:flex;justify-content:space-between;align-items:baseline;"
-                        f"padding:.5rem .8rem;border-left:3px solid {color};background:#14141e;"
-                        f"margin-bottom:.4rem;border-radius:0 4px 4px 0'>"
-                        f"<div><strong style='color:#f0e6d0;font-size:1.05rem'>{s['cancion']}</strong>"
-                        f" <span style='color:#6b6580;font-size:.85rem'>· {s['interprete']}</span></div>"
-                        f"<div style='color:{color};font-weight:600;font-family:monospace'>{pct_lbl}</div>"
-                        f"</div>",
-                        unsafe_allow_html=True,
-                    )
-                    roles_df = pd.DataFrame([
-                        {
-                            "Rol": r.get("role"),
-                            "Músico": r.get("musician_full") or r.get("musician_display") or "—",
-                            "%": r.get("pct") if r.get("pct") is not None else None,
-                        }
-                        for r in s.get("roles", [])
-                    ])
-                    if not roles_df.empty:
-                        st.dataframe(roles_df, use_container_width=True, hide_index=True)
+            header_lbl = f"**{ev['name']}** · {len(ev['songs'])} canciones"
+            if avg is not None:
+                header_lbl += f" · promedio {avg}%"
+            with st.expander(header_lbl, expanded=True):
+                # tabla resumen de la setlist
+                table_rows = []
+                for i, s in enumerate(ev["songs"]):
+                    table_rows.append({
+                        "#": i + 1,
+                        "Canción": s.get("cancion"),
+                        "Intérprete": s.get("interprete"),
+                        "Duración": s.get("duration") or "—",
+                        "Inst": s.get("inst") or "—",
+                        "Avance %": s.get("global_pct"),
+                    })
+                st.dataframe(
+                    pd.DataFrame(table_rows), use_container_width=True, hide_index=True,
+                    column_config={
+                        "Avance %": st.column_config.ProgressColumn(
+                            "Avance %", min_value=0, max_value=100, format="%d%%",
+                        ),
+                    },
+                )
+                # detalle por canción: roles del repertorio si hay match
+                songs_with_roles = [s for s in ev["songs"] if s.get("roles")]
+                if songs_with_roles:
+                    st.caption("👇 Detalle de roles por canción (vienen del Repertorio cuando hay match)")
+                    for s in songs_with_roles:
+                        pct = s.get("global_pct")
+                        pct_lbl = f"{pct}%" if pct is not None else "—"
+                        color = pct_color(pct)
+                        st.markdown(
+                            f"<div style='display:flex;justify-content:space-between;align-items:baseline;"
+                            f"padding:.4rem .7rem;border-left:3px solid {color};background:#14141e;"
+                            f"margin-top:.8rem;border-radius:0 4px 4px 0'>"
+                            f"<div><strong style='color:#f0e6d0'>{s['cancion']}</strong>"
+                            f" <span style='color:#6b6580;font-size:.85rem'>· {s['interprete']}</span></div>"
+                            f"<div style='color:{color};font-weight:600;font-family:monospace'>{pct_lbl}</div>"
+                            f"</div>",
+                            unsafe_allow_html=True,
+                        )
+                        roles_df = pd.DataFrame([
+                            {
+                                "Rol": r.get("role"),
+                                "Músico": r.get("musician_full") or r.get("musician_display") or "—",
+                                "%": r.get("pct"),
+                            }
+                            for r in s.get("roles", [])
+                        ])
+                        st.dataframe(
+                            roles_df, use_container_width=True, hide_index=True,
+                            column_config={
+                                "%": st.column_config.ProgressColumn(
+                                    "%", min_value=0, max_value=100, format="%d%%",
+                                ),
+                            },
+                        )
 
     # ===== REPERTORIO =====
     with sub_rep:
@@ -187,7 +215,7 @@ def render_dashboard(data):
                     "Roles totales": len(s.get("roles", [])),
                 })
             df = pd.DataFrame(rows)
-            st.caption(f"{len(df)} canciones · ordenable por columna · click en cabecera")
+            st.caption(f"{len(df)} canciones · ordenable por columna")
             st.dataframe(
                 df, use_container_width=True, hide_index=True,
                 column_config={
@@ -197,7 +225,7 @@ def render_dashboard(data):
                 },
             )
 
-    # ===== MÚSICOS =====
+    # ===== MÚSICOS (con drill-down) =====
     with sub_mus:
         roster = data.get("roster", []) or []
         active = [m for m in roster if m.get("count", 0) > 0]
@@ -219,9 +247,10 @@ def render_dashboard(data):
                     "% asistencia": pct,
                 })
             df = pd.DataFrame(rows)
-            st.caption(f"{len(df)} músicos activos · ordenable por columna")
-            st.dataframe(
+            st.caption(f"{len(df)} músicos activos · **click en una fila** para ver las canciones del músico")
+            event = st.dataframe(
                 df, use_container_width=True, hide_index=True,
+                on_select="rerun", selection_mode="single-row",
                 column_config={
                     "% canciones": st.column_config.ProgressColumn(
                         "% canciones", min_value=0, max_value=100, format="%d%%",
@@ -230,7 +259,58 @@ def render_dashboard(data):
                         "% asistencia", min_value=0, max_value=100, format="%d%%",
                     ),
                 },
+                key="musicians_df",
             )
+            if event.selection.rows:
+                idx = event.selection.rows[0]
+                m = active[idx]
+                st.divider()
+                st.subheader(f"📌 {m['full']}")
+                meta_cols = st.columns(4)
+                meta_cols[0].metric("Asignaciones", m.get("count", 0))
+                meta_cols[1].metric("% promedio", f"{m.get('avg_pct', 0) or 0}%")
+                meta_cols[2].metric("Asistencia", f"{m.get('attended', 0)}/{m.get('total', 0)}")
+                meta_cols[3].metric("Instrumentos", len(m.get("instruments_domain", []) or []))
+                songs_by_role = m.get("songs_by_role", {})
+                if not songs_by_role:
+                    st.info("Sin canciones asignadas.")
+                else:
+                    for role, role_songs in songs_by_role.items():
+                        st.markdown(f"##### {role} · {len(role_songs)} canción(es)")
+                        role_df = pd.DataFrame([
+                            {
+                                "Canción": s.get("cancion"),
+                                "Intérprete": s.get("interprete"),
+                                "Sección": (s.get("section") or "").capitalize(),
+                                "% avance": s.get("pct"),
+                            } for s in role_songs
+                        ])
+                        st.dataframe(
+                            role_df, use_container_width=True, hide_index=True,
+                            column_config={
+                                "% avance": st.column_config.ProgressColumn(
+                                    "% avance", min_value=0, max_value=100, format="%d%%",
+                                ),
+                            },
+                        )
+
+    # ===== CALENDARIO =====
+    with sub_cal:
+        calendar = data.get("calendar", []) or []
+        if not calendar:
+            st.info("Sin entradas en el calendario.")
+        else:
+            cal_rows = [
+                {
+                    "Fecha": e.get("date"),
+                    "Día": e.get("day"),
+                    "Evento": e.get("event") or "—",
+                    "Detalle / Lugar": e.get("extra") or "",
+                }
+                for e in calendar
+            ]
+            st.caption(f"{len(cal_rows)} entradas (todo el cronograma: ensayos, conciertos, presentaciones)")
+            st.dataframe(pd.DataFrame(cal_rows), use_container_width=True, hide_index=True)
 
 # ---------- RENDER: UPLOAD ----------
 def render_upload():

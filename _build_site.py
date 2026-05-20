@@ -154,36 +154,47 @@ def normalize_songs(raw, musicians):
     return out
 
 def build_eventos(raw, musicians):
-    """Eventos = setlists para presentaciones. Lee raw['events'] (lista de
-    {name, songs}) y enriquece los roles con nombre completo + promedio."""
-    # backward compat: si no hay 'events' usamos el legacy unirock
-    raw_events = raw.get("events")
+    """Eventos = setlists. Lee raw['events'] (lista de {name, songs}) y
+    cruza cada canción con el repertorio principal (banda + acústicas) para
+    sacar roles + global_pct cuando hay match por (intérprete, canción)."""
+    raw_events = raw.get("events") or []
     if not raw_events:
-        unirock = raw.get("songs", {}).get("unirock", [])
-        if not unirock:
-            return []
-        raw_events = [{"name": "UniRock", "songs": unirock}]
+        return []
+
+    # índice del repertorio principal para enriquecer eventos
+    repertoire_index = {}
+    for s in raw.get("songs", {}).get("banda", []) + raw.get("songs", {}).get("acusticas", []):
+        key = ((s.get("interprete") or "").strip().lower(),
+               (s.get("cancion") or "").strip().lower())
+        repertoire_index[key] = s
 
     out = []
     for ev in raw_events:
         ev_songs = []
         for s in ev.get("songs", []):
+            key = ((s.get("interprete") or "").strip().lower(),
+                   (s.get("cancion") or "").strip().lower())
+            matched = repertoire_index.get(key)
             roles_clean = []
-            for r in s.get("roles", []):
-                if r.get("musician"):
-                    full = find_full(r["musician"], musicians) or r["musician"]
-                else:
-                    full = None
-                roles_clean.append({
-                    "role": r["role"],
-                    "musician_display": r["musician"],
-                    "musician_full": full,
-                    "pct": r["pct"],
-                })
+            if matched:
+                for r in matched.get("roles", []):
+                    if r.get("musician"):
+                        full = find_full(r["musician"], musicians) or r["musician"]
+                    else:
+                        full = None
+                    roles_clean.append({
+                        "role": r["role"],
+                        "musician_display": r["musician"],
+                        "musician_full": full,
+                        "pct": r["pct"],
+                    })
             ev_songs.append({
                 "interprete": s.get("interprete"),
                 "cancion": s.get("cancion"),
-                "global_pct": s.get("global_pct"),
+                "duration": s.get("duration"),
+                "duration_raw": s.get("duration_raw"),
+                "inst": s.get("inst"),
+                "global_pct": (matched or {}).get("global_pct"),
                 "roles": roles_clean,
             })
         pcts = [s["global_pct"] for s in ev_songs if s["global_pct"] is not None]
@@ -212,6 +223,7 @@ def compute_payload(raw):
         "songs": songs_all,
         "eventos": eventos,
         "roster": roster,
+        "calendar": raw.get("calendar", []),
     }
 
 # --- HTML ---
@@ -461,7 +473,7 @@ section{padding:4rem 1.25rem;max-width:1100px;margin:0 auto}
 
 <section id="eventos">
   <div class="section-title">Eventos</div>
-  <div class="section-sub">Setlists para presentaciones · click para expandir</div>
+  <div class="section-sub">Setlists para presentaciones</div>
   <div id="eventos-container"></div>
 </section>
 
@@ -649,46 +661,25 @@ document.querySelectorAll("#musician-filters .filter-btn").forEach(b => {
   });
 });
 
-/* ---------- EVENTOS ---------- */
+/* ---------- EVENTOS (lista simple) ---------- */
 function renderEventos(){
   const c = document.getElementById("eventos-container");
   c.innerHTML = "";
   DATA.eventos.forEach((ev, eIdx) => {
     const header = document.createElement("div");
-    header.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin:" + (eIdx > 0 ? "2.5rem 0 1rem" : "0 0 1.2rem") + ";display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap";
-    const avgLbl = ev.avg_pct == null ? "—" : ev.avg_pct + "%";
-    header.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--cream);letter-spacing:0;text-transform:none">${ev.name}</span><span style="color:var(--dim)">${ev.songs.length} canciones · promedio <span style="color:var(--cream2)">${avgLbl}</span></span>`;
+    header.style.cssText = "margin:" + (eIdx > 0 ? "3rem" : "0") + " 0 1.2rem;display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap";
+    header.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--cream)">${ev.name}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)">${ev.songs.length} canciones</span>`;
     c.appendChild(header);
-    const sorted = ev.songs.slice().sort((a,b) => (b.global_pct ?? -1) - (a.global_pct ?? -1));
-    sorted.forEach((s, i) => {
-      const card = document.createElement("div");
-      card.className = "song-card";
-      card.style.animationDelay = (i * 0.03) + "s";
-      const pct = s.global_pct;
-      const barW = pct == null ? 0 : pct;
-      const barColor = pctColor(pct);
-      let rolesHtml = "";
-      s.roles.forEach(r => {
-        const dot = ROLE_DOT[r.role] || "voces";
-        const name = r.musician_full || r.musician_display || "<span class='empty'>sin asignar</span>";
-        rolesHtml += `<div class="role-row">
-          <div class="role-label"><span class="dot ${dot}"></span>${r.role}</div>
-          <div class="role-musician ${r.musician_display ? '' : 'empty'}">${name}</div>
-          <div class="role-pct">${pctLabel(r.pct)}</div>
-        </div>`;
-      });
-      card.innerHTML = `<div class="song-head" onclick="toggleSong(this)">
-        <div class="song-info">
-          <div class="song-title">${s.cancion}</div>
-          <div class="song-artist">${s.interprete}</div>
-        </div>
-        <div class="song-pct ${pctClass(pct)}">${pctLabel(pct)}</div>
-        <div class="song-toggle">+</div>
-        <div class="song-progress" style="width:${barW}%;background:${barColor}"></div>
-      </div>
-      <div class="song-body"><div class="song-body-inner">${rolesHtml}</div></div>`;
-      c.appendChild(card);
+    const list = document.createElement("ol");
+    list.style.cssText = "list-style:none;padding:0;margin:0;counter-reset:ev-item";
+    ev.songs.forEach((s, i) => {
+      const li = document.createElement("li");
+      li.style.cssText = "counter-increment:ev-item;padding:.7rem 0;border-bottom:1px solid var(--border);display:flex;gap:1rem;align-items:baseline;font-family:'Cormorant Garamond',serif";
+      const dur = s.duration ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--dim);margin-left:auto;letter-spacing:.1em">${s.duration}</span>` : '';
+      li.innerHTML = `<span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--dim);min-width:1.8em;text-align:right">${(i+1).toString().padStart(2,'0')}</span><span style="flex:1"><strong style="color:var(--cream);font-size:1.1rem">${s.cancion}</strong><span style="color:var(--dim);font-size:.8rem;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;margin-left:.6em">${s.interprete}</span></span>${dur}`;
+      list.appendChild(li);
     });
+    c.appendChild(list);
   });
 }
 
