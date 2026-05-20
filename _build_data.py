@@ -35,6 +35,10 @@ def read_xlsx(path):
         result = []
         for name, rid in sheets:
             target = rmap[rid]
+            # los .rels pueden devolver paths absolutos ("/xl/..."), relativos
+            # ("worksheets/..."), o ya con prefijo ("xl/worksheets/...").
+            # Normalizamos al formato del archivo dentro del zip.
+            target = target.lstrip("/")
             if not target.startswith("xl/"):
                 target = "xl/" + target
             stree = ET.parse(z.open(target))
@@ -157,6 +161,10 @@ def extract_musicians(base_dir):
         dt = serial_to_date(val)
         if dt and ci > 10:
             date_cols.append((ci, dt))
+    # ordenar cronológicamente (importante para "desde la primera 1")
+    date_cols.sort(key=lambda x: x[1])
+    total_season = len(date_cols)
+
     musicians = []
     for rnum in sorted(rows.keys()):
         if rnum < 3:
@@ -171,19 +179,34 @@ def extract_musicians(base_dir):
         # repertorio personal: columnas 10-12
         repertoire = [clean(cell(r, c)) for c in range(10, 13)]
         repertoire = [i for i in repertoire if i]
-        # asistencia
+        # asistencia DESDE la primera "1" del alumno
+        # (un alumno que empezó en la fecha N no debería penalizar por las
+        #  N-1 fechas anteriores en las que ni siquiera estaba inscrito)
         attended = 0
-        for ci, _ in date_cols:
+        first_one_idx = None
+        first_one_date = None
+        for i, (ci, dt) in enumerate(date_cols):
             v = cell(r, ci)
             if str(v).strip() == "1":
+                if first_one_idx is None:
+                    first_one_idx = i
+                    first_one_date = dt
                 attended += 1
-        total = len(date_cols)
+        # total para este alumno: si tiene al menos una asistencia,
+        # son las fechas desde la primera "1" en adelante;
+        # si nunca asistió, asumimos que estuvo desde el inicio (total completo)
+        if first_one_idx is not None:
+            total = total_season - first_one_idx
+        else:
+            total = total_season
         musicians.append({
             "full_name": full,
             "instruments_domain": instruments,
             "personal_repertoire": repertoire,
             "rehearsals_attended": attended,
             "rehearsals_total": total,
+            "rehearsals_season_total": total_season,
+            "first_rehearsal_date": first_one_date.strftime("%Y-%m-%d") if first_one_date else None,
         })
     return musicians
 
@@ -273,7 +296,40 @@ def extract_songs(base_dir):
             unirock_songs.append(song)
     return {"banda": banda, "acusticas": acusticas, "unirock": unirock_songs}
 
-# ---------- 4. PIPELINE ----------
+# ---------- 4. EVENTOS: xlsx separado, una hoja por evento ----------
+def extract_events(base_dir, fallback_unirock=None):
+    """Lee UPB Eventos.xlsx — cada hoja = un evento con su setlist.
+
+    Si el archivo no existe, devuelve un único evento "UniRock" con
+    fallback_unirock (el sheet Unirock del repertorio xlsx).
+    """
+    path = os.path.join(base_dir, "UPB Eventos.xlsx")
+    if not os.path.exists(path):
+        if fallback_unirock:
+            return [{"name": "UniRock", "songs": fallback_unirock}]
+        return []
+    sheets = read_xlsx(path)
+    events = []
+    for sheet_name, rows in sheets:
+        songs = []
+        empty_streak = 0
+        for rnum in sorted(rows.keys()):
+            if rnum < 3:
+                continue
+            r = rows[rnum]
+            song = parse_song_row(r)
+            if song and song["cancion"]:
+                songs.append(song)
+                empty_streak = 0
+            else:
+                empty_streak += 1
+                if empty_streak >= 2:
+                    break
+        if songs:
+            events.append({"name": sheet_name.strip(), "songs": songs})
+    return events
+
+# ---------- 5. PIPELINE ----------
 def all_song_assignments(songs):
     out = {}  # display_name -> list of (section, song, role, pct)
     for section, slist in [("banda", songs["banda"]), ("acústicas", songs["acusticas"])]:
@@ -293,11 +349,13 @@ def build(base_dir, write_json=True, verbose=False):
     rehearsals = extract_rehearsals(base_dir)
     musicians = extract_musicians(base_dir)
     songs = extract_songs(base_dir)
+    events = extract_events(base_dir, fallback_unirock=songs.get("unirock"))
     assignments = all_song_assignments(songs)
     data = {
         "rehearsals": rehearsals,
         "musicians_raw": musicians,
         "songs": songs,
+        "events": events,
         "assignments": assignments,
         "nick_to_full": NICK_TO_FULL,
     }
@@ -309,6 +367,7 @@ def build(base_dir, write_json=True, verbose=False):
             print(f"Wrote {out_path}")
             print(f"Rehearsals: {len(rehearsals)} | Musicians: {len(musicians)}")
             print(f"Songs banda: {len(songs['banda'])} | acústicas: {len(songs['acusticas'])} | unirock: {len(songs['unirock'])}")
+            print(f"Events: {len(events)} ({', '.join(e['name'] + '×' + str(len(e['songs'])) for e in events)})")
             print(f"Assignments: {len(assignments)}")
     return data
 

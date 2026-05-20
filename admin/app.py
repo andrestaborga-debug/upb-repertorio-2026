@@ -1,15 +1,19 @@
 """Streamlit admin para UPB Repertorio.
 
-Subí los 3 xlsx actualizados → regenera HTML → publica en Netlify.
-Sin terminal, sin git.
+Dos modos después de login (tabs):
+- 📊 Ver datos: dashboard del maestro con repertorio, músicos, eventos y asistencia.
+- 🔄 Actualizar: subida de los 4 xlsx → regenera HTML → publica en Netlify.
 """
 import hashlib
+import json
 import os
+import re
 import sys
 import tempfile
 import time
 from pathlib import Path
 
+import pandas as pd
 import requests
 import streamlit as st
 
@@ -19,12 +23,13 @@ import _build_data
 import _build_site
 
 st.set_page_config(
-    page_title="UPB · Actualizar repertorio",
+    page_title="UPB · Repertorio (admin)",
     page_icon="♪",
-    layout="centered",
+    layout="wide",
 )
 
 DEFAULT_SITE_ID = "7bc3d77f-aa78-4041-9efe-f52c0072b8d1"
+LIVE_URL = "https://upb-repertorio-2026.netlify.app"
 
 def _secret(key, default=""):
     try:
@@ -40,7 +45,9 @@ EXPECTED_FILES = {
     "repertorio": "UPB Repertorio 2026 DEF.xlsx",
     "lista": "UPB Lista 2026.xlsx",
     "cronograma": "Cronograma de ensayos UPB.xlsx",
+    "eventos": "UPB Eventos.xlsx",  # opcional
 }
+REQUIRED_KEYS = ["repertorio", "lista", "cronograma"]
 
 st.markdown(
     """
@@ -62,6 +69,10 @@ st.markdown(
         background:#e8a849 !important;
         color:#0a0a0f !important;
     }
+    [data-testid="stMetricValue"] { color:#d4a03c; font-family:'Playfair Display', Georgia, serif; }
+    .stTabs [data-baseweb="tab-list"] { gap: 1.5rem; }
+    .stTabs [data-baseweb="tab"] { color:#c8b99a; font-size:1.05rem; }
+    .stTabs [aria-selected="true"] { color:#d4a03c !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -69,8 +80,8 @@ st.markdown(
 
 # ---------- AUTH ----------
 if not st.session_state.get("authed"):
-    st.title("♪ UPB · Actualizar repertorio")
-    st.markdown("Ingresá la contraseña para subir los Excel actualizados.")
+    st.title("♪ UPB · Repertorio (admin)")
+    st.markdown("Ingresá la contraseña para continuar.")
     with st.form("login"):
         pwd = st.text_input("Contraseña", type="password", key="pwd_input")
         if st.form_submit_button("Entrar", type="primary"):
@@ -81,47 +92,196 @@ if not st.session_state.get("authed"):
                 st.error("Contraseña incorrecta.")
     st.stop()
 
-# ---------- MAIN UI ----------
-st.title("♪ UPB · Actualizar repertorio")
-st.markdown(
-    "Subí los **3 archivos Excel** actualizados y dale a **Publicar cambios**. "
-    "El sitio se regenera y se publica en "
-    "[upb-repertorio-2026.netlify.app](https://upb-repertorio-2026.netlify.app) "
-    "en menos de 30 segundos."
-)
+# ---------- HELPERS ----------
+@st.cache_data(ttl=60)
+def fetch_live_data():
+    """Trae el HTML público y extrae el JSON embebido (const DATA = ...)."""
+    try:
+        resp = requests.get(LIVE_URL + "/", timeout=15)
+        resp.raise_for_status()
+    except Exception as e:
+        return None, str(e)
+    m = re.search(r"const DATA = (\{.+?\});", resp.text, re.DOTALL)
+    if not m:
+        return None, "No se pudo extraer el payload del HTML público."
+    try:
+        return json.loads(m.group(1)), None
+    except Exception as e:
+        return None, f"JSON inválido: {e}"
 
-with st.form("upload"):
-    st.subheader("1 · Subir los 3 Excel")
-    files = {
-        "repertorio": st.file_uploader(
-            "Repertorio · `UPB Repertorio 2026 DEF.xlsx`",
-            type=["xlsx"], key="rep",
-        ),
-        "lista": st.file_uploader(
-            "Lista de músicos · `UPB Lista 2026.xlsx`",
-            type=["xlsx"], key="lst",
-        ),
-        "cronograma": st.file_uploader(
-            "Cronograma de ensayos · `Cronograma de ensayos UPB.xlsx`",
-            type=["xlsx"], key="cron",
-        ),
-    }
-    st.subheader("2 · Publicar")
-    submit = st.form_submit_button("Publicar cambios", type="primary", use_container_width=True)
+def pct_color(p):
+    if p is None: return "#6b6580"
+    if p >= 70: return "#7db87a"
+    if p >= 40: return "#e8a849"
+    return "#d46a6a"
 
-if submit:
-    missing = [EXPECTED_FILES[k] for k, v in files.items() if v is None]
+# ---------- RENDER: DASHBOARD ----------
+def render_dashboard(data):
+    kpis = data.get("kpis", {})
+    cols = st.columns(4)
+    cols[0].metric("Músicos activos", kpis.get("musicians_active", "—"))
+    cols[1].metric("Canciones", kpis.get("songs_total", "—"))
+    cols[2].metric("Avance medio", f"{kpis.get('avg_global', 0)}%")
+    eventos = data.get("eventos", []) or []
+    cols[3].metric("Eventos", len(eventos))
+
+    st.markdown(f"🌐 Vista pública: [{LIVE_URL}]({LIVE_URL}) · "
+                f"última carga hace {int((time.time() - st.session_state.get('fetched_at', time.time())))}s")
+    st.divider()
+
+    sub_eventos, sub_rep, sub_mus = st.tabs(
+        ["🎤 Eventos", "🎵 Repertorio", "👥 Músicos"]
+    )
+
+    # ===== EVENTOS =====
+    with sub_eventos:
+        if not eventos:
+            st.info("No hay eventos cargados todavía. Subí `UPB Eventos.xlsx` en la pestaña Actualizar.")
+        for ev in eventos:
+            avg = ev.get("avg_pct")
+            with st.expander(
+                f"**{ev['name']}** · {len(ev['songs'])} canciones · promedio {avg}%" if avg is not None
+                else f"**{ev['name']}** · {len(ev['songs'])} canciones",
+                expanded=True,
+            ):
+                for s in sorted(ev["songs"], key=lambda x: -(x.get("global_pct") or -1)):
+                    pct = s.get("global_pct")
+                    pct_lbl = f"{pct}%" if pct is not None else "—"
+                    color = pct_color(pct)
+                    st.markdown(
+                        f"<div style='display:flex;justify-content:space-between;align-items:baseline;"
+                        f"padding:.5rem .8rem;border-left:3px solid {color};background:#14141e;"
+                        f"margin-bottom:.4rem;border-radius:0 4px 4px 0'>"
+                        f"<div><strong style='color:#f0e6d0;font-size:1.05rem'>{s['cancion']}</strong>"
+                        f" <span style='color:#6b6580;font-size:.85rem'>· {s['interprete']}</span></div>"
+                        f"<div style='color:{color};font-weight:600;font-family:monospace'>{pct_lbl}</div>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
+                    roles_df = pd.DataFrame([
+                        {
+                            "Rol": r.get("role"),
+                            "Músico": r.get("musician_full") or r.get("musician_display") or "—",
+                            "%": r.get("pct") if r.get("pct") is not None else None,
+                        }
+                        for r in s.get("roles", [])
+                    ])
+                    if not roles_df.empty:
+                        st.dataframe(roles_df, use_container_width=True, hide_index=True)
+
+    # ===== REPERTORIO =====
+    with sub_rep:
+        songs = data.get("songs", []) or []
+        if not songs:
+            st.info("Sin canciones cargadas.")
+        else:
+            rows = []
+            for s in songs:
+                roles_filled = sum(1 for r in s.get("roles", []) if r.get("musician_display"))
+                rows.append({
+                    "Canción": s.get("cancion"),
+                    "Intérprete": s.get("interprete"),
+                    "Sección": s.get("section_label", s.get("section", "")).capitalize(),
+                    "Avance %": s.get("global_pct"),
+                    "Roles asignados": roles_filled,
+                    "Roles totales": len(s.get("roles", [])),
+                })
+            df = pd.DataFrame(rows)
+            st.caption(f"{len(df)} canciones · ordenable por columna · click en cabecera")
+            st.dataframe(
+                df, use_container_width=True, hide_index=True,
+                column_config={
+                    "Avance %": st.column_config.ProgressColumn(
+                        "Avance %", min_value=0, max_value=100, format="%d%%",
+                    ),
+                },
+            )
+
+    # ===== MÚSICOS =====
+    with sub_mus:
+        roster = data.get("roster", []) or []
+        active = [m for m in roster if m.get("count", 0) > 0]
+        if not active:
+            st.info("Sin músicos activos.")
+        else:
+            rows = []
+            for m in active:
+                attended = m.get("attended", 0)
+                total = m.get("total", 0)
+                pct = round(attended / total * 100) if total else 0
+                instruments = ", ".join(m.get("instruments_domain", []) or [])
+                rows.append({
+                    "Músico": m.get("full"),
+                    "Instrumentos": instruments,
+                    "Asignaciones": m.get("count", 0),
+                    "% canciones": m.get("avg_pct"),
+                    "Asistencia": f"{attended}/{total}",
+                    "% asistencia": pct,
+                })
+            df = pd.DataFrame(rows)
+            st.caption(f"{len(df)} músicos activos · ordenable por columna")
+            st.dataframe(
+                df, use_container_width=True, hide_index=True,
+                column_config={
+                    "% canciones": st.column_config.ProgressColumn(
+                        "% canciones", min_value=0, max_value=100, format="%d%%",
+                    ),
+                    "% asistencia": st.column_config.ProgressColumn(
+                        "% asistencia", min_value=0, max_value=100, format="%d%%",
+                    ),
+                },
+            )
+
+# ---------- RENDER: UPLOAD ----------
+def render_upload():
+    st.markdown(
+        "Subí los Excel actualizados y dale a **Publicar cambios**. "
+        f"El sitio se regenera y se publica en [{LIVE_URL.replace('https://','')}]({LIVE_URL}) "
+        "en menos de 30 segundos."
+    )
+
+    with st.form("upload"):
+        st.subheader("1 · Subir los Excel")
+        st.markdown("**Obligatorios:**")
+        files = {
+            "repertorio": st.file_uploader(
+                "Repertorio · `UPB Repertorio 2026 DEF.xlsx`",
+                type=["xlsx"], key="rep",
+            ),
+            "lista": st.file_uploader(
+                "Lista de músicos · `UPB Lista 2026.xlsx`",
+                type=["xlsx"], key="lst",
+            ),
+            "cronograma": st.file_uploader(
+                "Cronograma de ensayos · `Cronograma de ensayos UPB.xlsx`",
+                type=["xlsx"], key="cron",
+            ),
+        }
+        st.markdown("**Opcional** (si no lo subís, se usa la hoja Unirock del repertorio como evento único):")
+        files["eventos"] = st.file_uploader(
+            "Eventos · `UPB Eventos.xlsx` (cada hoja = un evento)",
+            type=["xlsx"], key="ev",
+        )
+        st.subheader("2 · Publicar")
+        submit = st.form_submit_button("Publicar cambios", type="primary", use_container_width=True)
+
+    if not submit:
+        return
+
+    missing = [EXPECTED_FILES[k] for k in REQUIRED_KEYS if files.get(k) is None]
     if missing:
-        st.error("Faltan archivos:\n" + "\n".join(f"- {m}" for m in missing))
-        st.stop()
+        st.error("Faltan archivos obligatorios:\n" + "\n".join(f"- {m}" for m in missing))
+        return
     if not NETLIFY_TOKEN:
         st.error("No hay token de Netlify configurado. Avisale al admin.")
-        st.stop()
+        return
 
     with st.status("Procesando…", expanded=True) as status:
         with tempfile.TemporaryDirectory() as tmp:
             st.write("📥 Guardando archivos…")
             for key, file in files.items():
+                if file is None:
+                    continue
                 target = os.path.join(tmp, EXPECTED_FILES[key])
                 with open(target, "wb") as f:
                     f.write(file.getvalue())
@@ -132,12 +292,14 @@ if submit:
             except Exception as e:
                 status.update(label="Error procesando Excel", state="error")
                 st.exception(e)
-                st.stop()
+                return
+            events_count = len(data.get("events", []))
+            events_summary = ", ".join(f"{e['name']}×{len(e['songs'])}" for e in data.get("events", []))
             st.write(
                 f"   → {len(data['musicians_raw'])} músicos · "
                 f"{len(data['songs']['banda'])} banda · "
                 f"{len(data['songs']['acusticas'])} acústicas · "
-                f"{len(data['songs']['unirock'])} unirock"
+                f"{events_count} evento(s) ({events_summary or 'ninguno'})"
             )
 
             st.write("🎨 Generando HTML…")
@@ -147,11 +309,8 @@ if submit:
             except Exception as e:
                 status.update(label="Error generando HTML", state="error")
                 st.exception(e)
-                st.stop()
+                return
 
-            # Netlify digest-based deploy: registramos los SHA1 de cada archivo,
-            # el servidor nos dice cuáles faltan, los subimos uno por uno con su
-            # Content-Type correcto (inferido por extensión).
             with open(index_path, "rb") as f:
                 index_bytes = f.read()
             files_map = {"/index.html": hashlib.sha1(index_bytes).hexdigest()}
@@ -168,11 +327,11 @@ if submit:
             except Exception as e:
                 status.update(label="Error de red con Netlify", state="error")
                 st.exception(e)
-                st.stop()
+                return
             if not resp.ok:
                 status.update(label="Netlify rechazó el deploy", state="error")
                 st.error(f"HTTP {resp.status_code}: {resp.text[:500]}")
-                st.stop()
+                return
             deploy = resp.json()
             deploy_id = deploy["id"]
             required = set(deploy.get("required") or [])
@@ -191,7 +350,7 @@ if submit:
                 if not up.ok:
                     status.update(label="Error subiendo archivo", state="error")
                     st.error(f"HTTP {up.status_code}: {up.text[:500]}")
-                    st.stop()
+                    return
 
             st.write("⏳ Esperando que Netlify procese…")
             for _ in range(30):
@@ -205,10 +364,13 @@ if submit:
                 if deploy.get("state") == "error":
                     status.update(label="Netlify falló al procesar", state="error")
                     st.error(deploy.get("error_message") or "error desconocido")
-                    st.stop()
+                    return
                 time.sleep(1)
 
             status.update(label="✅ ¡Publicado!", state="complete")
+
+    # invalidate cache so the view tab fetches the new data on next render
+    fetch_live_data.clear()
 
     st.success("Sitio actualizado correctamente.")
     live = deploy.get("ssl_url") or deploy.get("url")
@@ -217,3 +379,20 @@ if submit:
     if permanent:
         st.markdown(f"🔗 **Deploy permanente**: [{permanent}]({permanent})")
     st.balloons()
+
+# ---------- MAIN ----------
+st.title("♪ UPB · Repertorio (admin)")
+
+tab_view, tab_update = st.tabs(["📊 Ver datos", "🔄 Actualizar"])
+
+with tab_view:
+    with st.spinner("Cargando datos del sitio público…"):
+        data, err = fetch_live_data()
+    st.session_state["fetched_at"] = time.time()
+    if err:
+        st.error(f"No se pudo cargar los datos live: {err}")
+    elif data:
+        render_dashboard(data)
+
+with tab_update:
+    render_upload()

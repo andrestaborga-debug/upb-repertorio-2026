@@ -154,30 +154,42 @@ def normalize_songs(raw, musicians):
     return out
 
 def build_eventos(raw, musicians):
-    """Eventos = setlists para presentaciones. Por ahora: UniRock."""
-    songs = []
-    for s in raw["songs"]["unirock"]:
-        roles_clean = []
-        for r in s["roles"]:
-            if r["musician"]:
-                full = find_full(r["musician"], musicians) or r["musician"]
-            else:
-                full = None
-            roles_clean.append({
-                "role": r["role"],
-                "musician_display": r["musician"],
-                "musician_full": full,
-                "pct": r["pct"],
+    """Eventos = setlists para presentaciones. Lee raw['events'] (lista de
+    {name, songs}) y enriquece los roles con nombre completo + promedio."""
+    # backward compat: si no hay 'events' usamos el legacy unirock
+    raw_events = raw.get("events")
+    if not raw_events:
+        unirock = raw.get("songs", {}).get("unirock", [])
+        if not unirock:
+            return []
+        raw_events = [{"name": "UniRock", "songs": unirock}]
+
+    out = []
+    for ev in raw_events:
+        ev_songs = []
+        for s in ev.get("songs", []):
+            roles_clean = []
+            for r in s.get("roles", []):
+                if r.get("musician"):
+                    full = find_full(r["musician"], musicians) or r["musician"]
+                else:
+                    full = None
+                roles_clean.append({
+                    "role": r["role"],
+                    "musician_display": r["musician"],
+                    "musician_full": full,
+                    "pct": r["pct"],
+                })
+            ev_songs.append({
+                "interprete": s.get("interprete"),
+                "cancion": s.get("cancion"),
+                "global_pct": s.get("global_pct"),
+                "roles": roles_clean,
             })
-        songs.append({
-            "interprete": s["interprete"],
-            "cancion": s["cancion"],
-            "global_pct": s["global_pct"],
-            "roles": roles_clean,
-        })
-    pcts = [s["global_pct"] for s in songs if s["global_pct"] is not None]
-    avg = round(sum(pcts) / len(pcts)) if pcts else None
-    return [{"name": "UniRock", "songs": songs, "avg_pct": avg}]
+        pcts = [s["global_pct"] for s in ev_songs if s["global_pct"] is not None]
+        avg = round(sum(pcts) / len(pcts)) if pcts else None
+        out.append({"name": ev["name"], "songs": ev_songs, "avg_pct": avg})
+    return out
 
 def compute_payload(raw):
     musicians = raw["musicians_raw"]
