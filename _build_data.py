@@ -263,6 +263,11 @@ def extract_songs(base_dir):
     path = os.path.join(base_dir, "UPB Repertorio 2026 DEF.xlsx")
     sheets = read_xlsx(path)
     sheets_d = dict(sheets)
+    if "Repertorio" not in sheets_d:
+        raise ValueError(
+            f"El archivo '{os.path.basename(path)}' no tiene una hoja llamada "
+            f"'Repertorio'. Hojas encontradas: {list(sheets_d.keys())}"
+        )
     repertorio = sheets_d["Repertorio"]
     # Unirock ya no vive en el repertorio (migró a Eventos.xlsx) — opcional para retrocompat
     unirock = sheets_d.get("Unirock", {})
